@@ -32,7 +32,7 @@ def displaySidebar():
         colored_header("EdTech ID",description="",color_name="red-70")
         st.info(st.session_state.edTechID)
         colored_header("Uploadez votre fichier",description="",color_name="red-70")
-    uploaded_file = st.sidebar.file_uploader("Choose a JSON file", type='json',label_visibility="collapsed")
+    uploaded_file = st.sidebar.file_uploader("Choose a JSON file", type='json',label_visibility="collapsed",disabled=True)
     if st.sidebar.button("Reset",use_container_width=True): 
         st.session_state.submitted = False
         st.session_state.submitted2 = False
@@ -95,7 +95,7 @@ def ontologyMatching():
     st.session_state.col2M, st.session_state.col3M = st.columns(2)
 
     with st.expander("Schéma",expanded=True):
-        colored_header("L'ontologie SMART","",color_name="red-70")
+        colored_header("ARIANE pivot ontology","",color_name="red-70")
         st.image("app/ressources/ontologyVisualization.png",use_column_width=True)
 
     colored_header("Mapping",description="",color_name="red-70")

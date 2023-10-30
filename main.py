@@ -4,15 +4,19 @@ from app.matchingO import ontologyMatching
 from app.matchingR import referentialMatching
 
 def main():
-    st.sidebar.title("Arianne Demo")
+    st.sidebar.title("ARIANE Interoperability")
     st.sidebar.image("app/ressources/logoMM.png")
-    
-    page_selector = st.sidebar.selectbox("Choisissez une page:", ["Choisissez une page","Interface Ontologie",  "Interface Référentiel"],label_visibility="collapsed")
     st.sidebar.divider()
+    l,r = st.sidebar.columns(2)
+    if "selector" not in st.session_state:
+        st.session_state.selector = ""
+    if l.button("Ontology Mapping",use_container_width=True): st.session_state.selector = "Interface Ontologie"
+    if r.button("Framework Mapping",use_container_width=True): st.session_state.selector = "Interface Référentiel"
+
     # Direct to the appropriate page
-    if page_selector == "Interface Ontologie":
+    if st.session_state.selector == "Interface Ontologie":
         ontologyMatching()
-    elif page_selector == "Interface Référentiel":
+    if st.session_state.selector== "Interface Référentiel":
         referentialMatching()
 
 

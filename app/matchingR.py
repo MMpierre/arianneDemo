@@ -11,19 +11,24 @@ def randomJob():
     return [domain,family,job]
 
 def displayGraphG():
-    job = randomJob()
     d,m,p = st.columns(3)
+    description = st.container()
+    l,r = st.columns(2)
+
+    if l.button("Précédent",use_container_width=True) : st.session_state.rjob = randomJob()
+    if r.button("Suivant",use_container_width=True) :  st.session_state.rjob = randomJob()
+    job = st.session_state["rjob"]
+
     d.selectbox("Domaine",st.session_state.GEN.keys(),index=job[0],format_func=lambda x : st.session_state.GEN[x]["prefLabel"][0]["@value"],key="domain")
     m.selectbox("Métier",st.session_state.GEN[st.session_state.domain]["children"],index=job[1],format_func=lambda x : x["prefLabel"][0]["@value"],key="job")
     indexJob = st.session_state.GEN[st.session_state.domain]["children"].index(st.session_state.job)
     p.selectbox("Poste",st.session_state.GEN[st.session_state.domain]["children"][indexJob]["children"],index=job[2],format_func=lambda x : x["prefLabel"][0]["@value"],key="occupation")
-    
     indexOccupation = st.session_state.GEN[st.session_state.domain]["children"][indexJob]["children"].index(st.session_state.occupation)
-    colored_header(st.session_state.GEN[st.session_state.domain]["children"][indexJob]["children"][indexOccupation]["prefLabel"][0]["@value"],"",color_name="blue-30")
-    st.info(f'Le "{st.session_state.GEN[st.session_state.domain]["children"][indexJob]["children"][indexOccupation]["prefLabel"][0]["@value"]}" est un Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam molestie gravida turpis sit amet pellentesque. Aliquam suscipit posuere egestas. Quisque ac sapien eros. Sed gravida dictum dui ut condimentum. Integer accumsan turpis ut nulla iaculis pulvinar. Donec efficitur, odio quis dignissim consequat, urna magna mattis tellus, vel rutrum ipsum sem ac odio. Donec diam nibh, placerat ut risus a, lobortis blandit risus. Vestibulum ac mattis enim, sed sollicitudin justo. Duis eget pretium libero. Phasellus facilisis velit vel odio molestie, ut interdum nisi facilisis.')
-    l,r = st.columns(2)
-    l.button("Précédent",use_container_width=True)
-    r.button("Suivant",use_container_width=True)
+
+    with description:
+        colored_header(st.session_state.GEN[st.session_state.domain]["children"][indexJob]["children"][indexOccupation]["prefLabel"][0]["@value"],"",color_name="blue-30")
+        st.info(f'Le "{st.session_state.GEN[st.session_state.domain]["children"][indexJob]["children"][indexOccupation]["prefLabel"][0]["@value"]}" est un Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam molestie gravida turpis sit amet pellentesque. Aliquam suscipit posuere egestas. Quisque ac sapien eros. Sed gravida dictum dui ut condimentum. Integer accumsan turpis ut nulla iaculis pulvinar. Donec efficitur, odio quis dignissim consequat, urna magna mattis tellus, vel rutrum ipsum sem ac odio. Donec diam nibh, placerat ut risus a, lobortis blandit risus. Vestibulum ac mattis enim, sed sollicitudin justo. Duis eget pretium libero. Phasellus facilisis velit vel odio molestie, ut interdum nisi facilisis.')
+
 
 def displayGraphD():
     d,f,p = st.columns(3)
@@ -42,18 +47,20 @@ def displayGraphD():
 
 def displaySidebar():
     with st.sidebar:
+        st.header("Use Cases",divider="red")
+        st.button("GEN Framework",use_container_width=True)
         st.header("EdTech ID",divider="red")
-        st.info("Inokufu")
-        file = st.file_uploader("Upload your file",label_visibility='collapsed')
-        st.header("Votre référentiels",divider="red")
-        st.info("Référentiel GEN")
-        st.header("Référentiel à aligner",divider="red")
-        st.info("Référentiel ROME")
-        st.header("Validation automatique",divider="red")
+        st.info("GEN")
+        st.header("Targeted Framework",divider="red")
+        l,r = st.columns(2)
+        l.button("ROME Framework",use_container_width=True)
+        r.button("ESCO Framework",use_container_width=True)
+        st.header("Automatic Validation",divider="red")
         st.number_input("Seuil de validation automatique",0,100,95,1,key="seuil")
         _,l,r = st.columns([1,2,2])
-        st.button("Validation Automatique",use_container_width=True)
+        st.button("Automatic Validation",use_container_width=True)
         st.progress(100-st.session_state.seuil,f"Reste à évaluer {int( st.session_state.seuil * 1.35)}/{135}")
+        file = st.file_uploader("Upload your file",label_visibility='collapsed',disabled=True)
         
 
 
@@ -69,13 +76,13 @@ def displayMatching():
                 "Alignements pour lesquels l'algorithme ne trouve pas de correspondance"]
         for i,level in enumerate(levels):
             with level:
-                colored_header(f"Seuil de confiance {i+1} - {values[i]}",description=desc[i],color_name=f"{colors[i]}-70")
-                st.form_submit_button(f"Accéder {i}",use_container_width=True)
+                colored_header(f"Seuil de confiance {i+1} - {((1-i/5)*st.session_state.seuil):.1f}%",description=desc[i],color_name=f"{colors[i]}-70")
+                if st.form_submit_button(f"Accéder ({values[i]})",use_container_width=True): st.session_state["confiance"] = i 
 
 
 def displayMatches():
     with st.expander("Matches"):
-        st.header("Matches",divider="red")
+        st.header(f"Matches - Seuil de confiance {st.session_state.confiance+1}",divider="red",anchor="matches")
         for i in range(5):
             with st.form(f"match  {i}"):
                 l,r,t = st.columns([10,10,1])
@@ -91,15 +98,18 @@ def displayMatches():
 
 def referentialMatching():
     st.session_state.GEN = json.load(open("app/data/GEN/transformed_referentielGEN.json","rb"))
+    if "rjob" not in st.session_state:
+        st.session_state["rjob"] = randomJob()
+        st.session_state["confiance"] = 0
     if "rules" not in st.session_state:
         st.session_state.rules = []
     displaySidebar()
     col1, col2 = st.columns([2,2])
     with col1:
-        st.header("Référentiel GEN",divider="red")
+        st.header("GEN Framework",divider="red")
         displayGraphG()
     with col2:
-        st.header("Référentiel ROME",divider="red")
+        st.header("ROME Framework",divider="red")
         displayGraphD()
     displayMatching()
     st.divider()
