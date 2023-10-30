@@ -1,0 +1,24 @@
+{
+    "SmartOntology": {
+        "Competency": {
+            "Properties": ["id", "label", "Description", "compType", "skillLevel"],
+            "Objects": ["learnedIn", "belongsTo"]
+        },
+        "Profile": {
+            "Properties": ["id", "name", "email", "address"],
+            "Objects": ["experience", "suggestions", "choices"]
+        },
+        "IndividualChoice": {
+            "Properties": ["ID", "polarity", "about"],
+            "Objects": ["profile"]
+        },
+        "SkillBlock": {
+            "Properties": ["id", "label", "Description", "compType"],
+            "Objects": ["learnedIn", "contains"]
+        },
+        "Experience": {
+            "Properties": ["id", "label", "description", "expType", "dateFrom", "dateTo", "results", "validatedBy"],
+            "Objects": ["profile"]
+        }
+    }
+}
