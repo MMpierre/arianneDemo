@@ -127,6 +127,7 @@ def matchingTool():
                 else:
                     liste = list(st.session_state.propertyList) 
                 for propriete in liste:
+                
                     l,r = st.columns(2)
                     l.info(propriete)
                     r.selectbox("propriete",[f"Is not a property of '{st.session_state.currentObject[1]}'"]  + st.session_state.ontology[st.session_state.currentObject[0]]["Properties"],key = f"property4{propriete}",label_visibility="collapsed")
