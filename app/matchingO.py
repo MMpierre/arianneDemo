@@ -13,7 +13,7 @@ def getGaming():
 
 def getJobsong():
     st.session_state["edTechID"] = "Jobsong"
-    st.session_state.propertyList = ["Id Profil","Nom","Prénom","Mail","Adresse","Rayon","Expérience 1 - ID","Expérience 2 - ID","Expérience 3 - ID","Suggested Missions","Liked Missions "]
+    st.session_state.propertyList = ["Experience Id","Experience Label","Associated Hard Skills","Associated Soft Skills","Suggested Missions","Liked Missons"]
     return None
 
 def getInokufu():
@@ -26,7 +26,7 @@ def displaySidebar():
         st.header("Use Cases",divider="red")
         a,b,c = st.columns(3)
         if a.button("Gaming Tests",use_container_width=True): st.session_state.data = getGaming()
-        if b.button("User Profiles",use_container_width=True): st.session_state.data = getJobsong()
+        if b.button("Career Paths",use_container_width=True): st.session_state.data = getJobsong()
         if c.button("Avaiblable Courses",use_container_width=True): st.session_state.data = getInokufu()
 
         colored_header("EdTech ID",description="",color_name="red-70")
@@ -38,6 +38,9 @@ def displaySidebar():
         st.session_state.submitted2 = False
         st.session_state.propertyForm = False
         st.session_state.mappingForm = False
+        st.session_state.exps = []
+        st.session_state.comps = []
+
 
     # Initialize an empty dictionary to hold your JSON data
     data = {}
@@ -51,35 +54,66 @@ def displaySidebar():
 def matchingTool():
     l,r = st.columns([1,2])
     with l,st.form("Item type"):
-        colored_header("Select you item type :",description='You can check your object type in the table above',color_name="red-50")
-        st.selectbox("type",st.session_state.ontology.keys(),key="selectedType",label_visibility="collapsed")
+        colored_header("Add a new item:",description="",color_name="red-50")
+        st.selectbox("Select your Object type",["Experience","Competency","Individual Choice"],key="selectedType")
+        st.text_input("Name your Object",help="Name your Object",key="objectName")
         if st.form_submit_button("Confirmer",use_container_width=True): st.session_state.submitted = True
     if st.session_state.submitted:
         with r,st.form("property match"):
-            colored_header("Select the objects in the fields",description="Add each field which is an experience, a competency or an individual choice",color_name="red-50")
-            st.multiselect("objectFields",st.session_state.propertyList,label_visibility="collapsed",key="selected")
-            if st.form_submit_button("Confirmer",use_container_width=True) : st.session_state.submitted2 = True
-   
+            colored_header("Define obligatory properties",description="Add each field which is an experience, a competency or an individual choice",color_name="red-50")
+            if st.session_state.selectedType == "Experience":
+                l,r = st.columns(2)
+                l.info("Experience Type")
+                r.selectbox("objectFields",["Professional","Vocationnal","Educational","Test","Custom"],label_visibility="collapsed",key="selected")
+                l,r = st.columns(2)
+                l.info("Experience Status")
+                r.selectbox("objectFields",["Past","Ongoing","Suggested"],label_visibility="collapsed",key="selected2")
+                if st.form_submit_button("Confirmer",use_container_width=True) : 
+                    st.session_state.exps.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.selected,st.session_state.selected2))
+                    st.session_state.submitted = False
+                    st.rerun()
+            elif st.session_state.selectedType == "Competency":
+                l,r = st.columns(2)
+                l.info("Skill Type")
+                r.selectbox("objectFields",["Hard Skill","Soft Skill","Personality Trait","Mixed"],label_visibility="collapsed",key="selected")
+                l,r = st.columns(2)
+                l.info("Experience")
+                if len(st.session_state.exps)>0:
+                    r.selectbox("objectFields",st.session_state.exps,format_func=lambda x : x[1],label_visibility="collapsed",key="selected2")
+                else:
+                    r.error("First create an experience")
+                if st.form_submit_button("Confirmer",use_container_width=True) : 
+                    st.session_state.comps.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.selected,st.session_state.selected2[1]))
+                    st.session_state.submitted = False
+                    st.rerun()
+            elif st.session_state.selectedType == "Individual Choice":
+                st.error("Formulaire pas encore créé pour cet objet")
+    for object in st.session_state.exps:
+        st.info(object)
+    for object in st.session_state.comps:
+        st.info(object)
     colored_header("Matching",description="",color_name="red-70") 
-    if st.session_state.submitted2 == True:
+    if len(st.session_state.exps) > 0:
         
-        o,p = st.columns(2)
-        with o,st.form("Object match"):
-            colored_header("Match the Objects",description="",color_name="red-50")
-            for object in st.session_state.selected:
+        _,o,_ = st.columns(3)
+        with o,st.form("Map your properties"):
+            colored_header("Select your Object",description="",color_name="red-50")
+            st.selectbox("Select your object",st.session_state.exps + st.session_state.comps,format_func=lambda x: x[1],key="currentObject",label_visibility="collapsed")
+            if st.form_submit_button("Confirmer",use_container_width=True) : st.session_state.submitted2 = True
+        if st.session_state.submitted2:
+            with st.form("Property match"):
+                colored_header(f"Map '{st.session_state.currentObject[1]}' properties",description="",color_name="red-50")
+
                 l,r = st.columns(2)
-                l.info(object)
-                r.selectbox("propriete",list(st.session_state.ontology[st.session_state.selectedType]["Objects"]) + ["New Object"],key = f"object4{object}",label_visibility="collapsed")
-            if st.form_submit_button("Confirmer",use_container_width=True) : st.session_state.mappingForm = True
-        with p,st.form("Property match"):
-            colored_header("Match the Properties",description="",color_name="red-50")
-            for propriete in set(st.session_state.propertyList).difference(set(st.session_state.selected)):
-                l,r = st.columns(2)
-                l.info(propriete)
-                r.selectbox("propriete",list(st.session_state.ontology[st.session_state.selectedType]["Properties"]) + ["New Property"],key = f"property4{propriete}",label_visibility="collapsed")
-            if st.form_submit_button("Confirmer",use_container_width=True) : st.session_state.propertyForm = True
-        if st.session_state.mappingForm : o.success("Object Mapping Done")
-        if st.session_state.propertyForm : p.success("Property Mapping Done")
+                l.header("Your fields")
+                r.header("Ontology Properties")
+                for propriete in st.session_state.propertyList:
+                    l,r = st.columns(2)
+                    l.info(propriete)
+                    r.selectbox("propriete",[f"Is not a property of '{st.session_state.currentObject[1]}'"]  + list(st.session_state.ontology[st.session_state.currentObject[0]]["Properties"]) ,key = f"property4{propriete}",label_visibility="collapsed")
+                if st.form_submit_button("Confirmer",use_container_width=True) : st.session_state.propertyForm = True
+                
+            if st.session_state.propertyForm : st.success("Rule1 :fsgds")
 
 
 def ontologyMatching():
@@ -89,6 +123,8 @@ def ontologyMatching():
         st.session_state.submitted2 = False
         st.session_state.propertyForm = False
         st.session_state.mappingForm = False
+        st.session_state.exps = []
+        st.session_state.comps = []
         getGaming()
     getReferentiel()
     displaySidebar()
@@ -98,7 +134,7 @@ def ontologyMatching():
         colored_header("ARIANE pivot ontology","",color_name="red-70")
         st.image("app/ressources/ontologyVisualization.png",use_column_width=True)
 
-    colored_header("Mapping",description="",color_name="red-70")
+    colored_header("Your Objects",description="",color_name="red-70")
     matchingTool()
 
     if st.session_state.propertyForm and st.session_state.mappingForm:
@@ -109,3 +145,5 @@ if __name__ == "__main__":
     st.set_page_config(layout='wide')
     st.title("Outil de Matching d'Ontologie")
     ontologyMatching()
+
+
