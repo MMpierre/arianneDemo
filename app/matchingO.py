@@ -128,7 +128,7 @@ def matchingTool():
                 for propriete in liste:
                     l,r = st.columns(2)
                     l.info(propriete)
-                    r.selectbox("propriete",[f"Is not a property of '{st.session_state.currentObject[1]}'"]  + liste,key = f"property4{propriete}",label_visibility="collapsed")
+                    r.selectbox("propriete",[f"Is not a property of '{st.session_state.currentObject[1]}'"]  + st.session_state.ontology[st.session_state.currentObject[0]]["Properties"],key = f"property4{propriete}",label_visibility="collapsed")
                 if st.form_submit_button("Confirmer",use_container_width=True) : 
                     new_list = []
                     i=0
