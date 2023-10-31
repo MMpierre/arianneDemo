@@ -41,7 +41,8 @@ def displaySidebar():
         st.session_state.exps = []
         st.session_state.comps = []
         st.session_state.rules = []
-        del st.session_state.new_list
+        if "new_list" in st.session_state:
+            del st.session_state.new_list
 
 
     # Initialize an empty dictionary to hold your JSON data
@@ -159,6 +160,8 @@ def ontologyMatching():
         st.session_state.exps = []
         st.session_state.comps = []
         st.session_state.rules = []
+        if "new_list" in st.session_state:
+            del st.session_state.new_list
         getGaming()
     getReferentiel()
     displaySidebar()
