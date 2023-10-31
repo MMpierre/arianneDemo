@@ -140,9 +140,7 @@ def matchingTool():
                             st.session_state.rules.append(f"{st.session_state.currentObject[1]} / {propriete} a été associée à {st.session_state[f'property4{propriete}']}")
                         else:
                             new_list.append(propriete)
-                    st.write(new_list)
-                    fsd
-                    if len(new_list)>0:
+                    if len(new_list)!=len(st.session_state.new_list):
                         st.session_state.new_list = new_list
                         st.rerun()
 
