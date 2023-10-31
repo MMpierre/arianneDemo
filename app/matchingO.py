@@ -134,6 +134,8 @@ def matchingTool():
                     new_list = []
                     i=0
                     for propriete in liste:
+                        st.write(st.session_state[f"property4{propriete}"])
+                        st.write(f"Is not a property of '{st.session_state.currentObject[1]}'")
                         if st.session_state[f"property4{propriete}"] != f"Is not a property of '{st.session_state.currentObject[1]}'":
                             st.session_state.rules.append(f"{st.session_state.currentObject[1]} / {propriete} a été associée à {st.session_state[f'property4{propriete}']}")
                         else:
