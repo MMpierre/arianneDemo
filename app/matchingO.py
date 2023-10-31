@@ -40,6 +40,8 @@ def displaySidebar():
         st.session_state.mappingForm = False
         st.session_state.exps = []
         st.session_state.comps = []
+        st.session_state.rules = []
+        del st.session_state.new_list
 
 
     # Initialize an empty dictionary to hold your JSON data
@@ -60,7 +62,7 @@ def matchingTool():
         if st.form_submit_button("Confirmer",use_container_width=True): st.session_state.submitted = True
     if st.session_state.submitted:
         with r,st.form("property match"):
-            colored_header("Define obligatory properties",description="Add each field which is an experience, a competency or an individual choice",color_name="red-50")
+            colored_header("Define mandatory properties",description="Add each field which is an experience, a competency or an individual choice",color_name="red-50")
             if st.session_state.selectedType == "Experience":
                 l,r = st.columns(2)
                 l.info("Experience Type")
@@ -87,7 +89,19 @@ def matchingTool():
                     st.session_state.submitted = False
                     st.rerun()
             elif st.session_state.selectedType == "Individual Choice":
-                st.error("Formulaire pas encore créé pour cet objet")
+                l,r = st.columns(2)
+                l.info("Polarity")
+                r.selectbox("objectFields",["Like","Level"],label_visibility="collapsed",key="selected")
+                l,r = st.columns(2)
+                l.info("Experience")
+                if len(st.session_state.exps)>0:
+                    r.selectbox("objectFields",st.session_state.exps,format_func=lambda x : x[1],label_visibility="collapsed",key="selected2")
+                else:
+                    r.error("First create an experience")
+                if st.form_submit_button("Confirmer",use_container_width=True) : 
+                    st.session_state.comps.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.selected,st.session_state.selected2[1]))
+                    st.session_state.submitted = False
+                    st.rerun()
     for object in st.session_state.exps:
         st.info(object)
     for object in st.session_state.comps:
@@ -95,7 +109,7 @@ def matchingTool():
     colored_header("Matching",description="",color_name="red-70") 
     if len(st.session_state.exps) > 0:
         
-        _,o,_ = st.columns(3)
+        o,_,_ = st.columns(3)
         with o,st.form("Map your properties"):
             colored_header("Select your Object",description="",color_name="red-50")
             st.selectbox("Select your object",st.session_state.exps + st.session_state.comps,format_func=lambda x: x[1],key="currentObject",label_visibility="collapsed")
@@ -107,13 +121,30 @@ def matchingTool():
                 l,r = st.columns(2)
                 l.header("Your fields")
                 r.header("Ontology Properties")
-                for propriete in st.session_state.propertyList:
+                if "new_list" in st.session_state:
+                    liste = st.session_state.new_list
+                else:
+                    liste = list(st.session_state.propertyList) 
+                for propriete in liste:
                     l,r = st.columns(2)
                     l.info(propriete)
-                    r.selectbox("propriete",[f"Is not a property of '{st.session_state.currentObject[1]}'"]  + list(st.session_state.ontology[st.session_state.currentObject[0]]["Properties"]) ,key = f"property4{propriete}",label_visibility="collapsed")
-                if st.form_submit_button("Confirmer",use_container_width=True) : st.session_state.propertyForm = True
+                    r.selectbox("propriete",[f"Is not a property of '{st.session_state.currentObject[1]}'"]  + liste,key = f"property4{propriete}",label_visibility="collapsed")
+                if st.form_submit_button("Confirmer",use_container_width=True) : 
+                    new_list = []
+                    i=0
+                    for propriete in liste:
+                        if st.session_state[f"property4{propriete}"] != f"Is not a property of '{st.session_state.currentObject[1]}'":
+                            st.session_state.rules.append(f"{st.session_state.currentObject[1]} / {propriete} a été associée à {st.session_state[f'property4{propriete}']}")
+                        else:
+                            new_list.append(propriete)
+                    st.session_state.new_list = new_list
+                    st.rerun()
+        if len(st.session_state.rules)>0:
+            for i,rule in enumerate(st.session_state.rules):
+                st.success(f"Rule {i} : " + rule)
+
+                            
                 
-            if st.session_state.propertyForm : st.success("Rule1 :fsgds")
 
 
 def ontologyMatching():
@@ -125,6 +156,7 @@ def ontologyMatching():
         st.session_state.mappingForm = False
         st.session_state.exps = []
         st.session_state.comps = []
+        st.session_state.rules = []
         getGaming()
     getReferentiel()
     displaySidebar()
