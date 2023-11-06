@@ -209,7 +209,7 @@ def ontologyMatching():
 
     with st.expander("Schéma",expanded=True):
         colored_header("ARIANE pivot ontology","",color_name="red-70")
-        st.image("app/ressources/ontologyVisualization2.png",use_column_width=True)
+        st.image("app/ressources/ontologyVisualization.png",use_column_width=True)
 
     colored_header("Your Objects",description="",color_name="red-70")
     matchingTool()
