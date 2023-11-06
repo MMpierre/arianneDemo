@@ -11,8 +11,7 @@ def main():
     l,r = st.sidebar.columns(2)
     if "selector" not in st.session_state:
         st.session_state.selector = ""
-    if l.button("Ontology Mapping",use_container_width=True): st.session_state.selector = "Interface Ontologie"
-    if l.button("Ontology Mapping Barth",use_container_width=True) : st.session_state.selector = "Interface Ontologie 2"
+    if l.button("Ontology Mapping",use_container_width=True) : st.session_state.selector = "Interface Ontologie 2"
     if r.button("Framework Mapping",use_container_width=True): st.session_state.selector = "Interface Référentiel"
 
     # Direct to the appropriate page

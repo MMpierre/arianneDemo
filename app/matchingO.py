@@ -66,7 +66,7 @@ def matchingTool():
     with l,st.form("Item type"):
         colored_header("Add a new item:",description="",color_name="red-50")
         st.selectbox("Select your Object type",["Experience","Competency","Individual Choice"],key="selectedType")
-        st.text_input("Name your Object",f"{st.session_state.edTechID} - Objet {len(st.session_state.comps)+len(st.session_state.exps)}",help="Name your Object",key="objectName")
+        st.text_input("Name your Object",f"{st.session_state.edTechID} - Objet {len(st.session_state.comps)+len(st.session_state.exps)+len(st.session_state.ic)}",help="Name your Object",key="objectName")
         if st.form_submit_button("Confirmer",use_container_width=True): st.session_state.submitted = True
     if st.session_state.submitted:
         with r,st.form("property match"):
