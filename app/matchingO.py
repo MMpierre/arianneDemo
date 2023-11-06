@@ -167,7 +167,7 @@ def matchingTool():
                     i=0
                     for propriete in liste:
                         if st.session_state[f"property4{propriete}"] != f"Is not a property of '{st.session_state.currentObject[1]}'":
-                            st.session_state.rules.append(f"The field '{st.session_state[f'property4{propriete}']}' is associated to the property '{st.session_state.currentObject[1]} / {propriete}' ")
+                            st.session_state.rules.append(f"The property '{st.session_state.currentObject[1]} / {propriete}'  is associated to the field '{st.session_state[f'property4{propriete}']}'")
 
                         else:
                             new_list.append(propriete)
