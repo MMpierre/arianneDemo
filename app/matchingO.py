@@ -42,11 +42,12 @@ def displaySidebar():
         a,b,c = st.columns(3)
         if a.button("Gaming Tests",use_container_width=True): st.session_state.data = getGaming()
         if b.button("Career Paths",use_container_width=True): st.session_state.data = getJobsong()
-        if c.button("Avaiblable Courses",use_container_width=True): st.session_state.data = getInokufu()
-
+        if c.button("Courses Database",use_container_width=True): st.session_state.data = getInokufu()
+        with st.expander("Screenshot of the file"):
+            st.image("app/ressources/green_16x16.png")
         colored_header("EdTech ID",description="",color_name="red-70")
         st.info(st.session_state.edTechID)
-        colored_header("Uploadez votre fichier",description="",color_name="red-70")
+        colored_header("Upload your own file",description="",color_name="red-70")
     uploaded_file = st.sidebar.file_uploader("Choose a JSON file", type='json',label_visibility="collapsed",disabled=True)
     if st.sidebar.button("Reset",use_container_width=True): reset()
 
@@ -67,7 +68,7 @@ def matchingTool():
         colored_header("Add a new item:",description="",color_name="red-50")
         st.selectbox("Select your Object type",["Experience","Competency","Individual Choice"],key="selectedType")
         st.text_input("Name your Object",f"{st.session_state.edTechID} - Objet {len(st.session_state.comps)+len(st.session_state.exps)+len(st.session_state.ic)}",help="Name your Object",key="objectName")
-        if st.form_submit_button("Confirmer",use_container_width=True): st.session_state.submitted = True
+        if st.form_submit_button("Confirm",use_container_width=True): st.session_state.submitted = True
     if st.session_state.submitted:
         with r,st.form("property match"):
             colored_header("Define mandatory properties",description="Add each field which is an experience, a competency or an individual choice",color_name="red-50")
@@ -78,7 +79,7 @@ def matchingTool():
                 l,r = st.columns(2)
                 l.info("Experience Status")
                 r.selectbox("objectFields",["Past","Ongoing","Suggested"],label_visibility="collapsed",key="selected2")
-                if st.form_submit_button("Confirmer",use_container_width=True) : 
+                if st.form_submit_button("Confirm",use_container_width=True) : 
                     st.session_state.exps.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.selected,st.session_state.selected2))
                     st.session_state.submitted = False
                     st.rerun()
@@ -90,13 +91,13 @@ def matchingTool():
                 l.info("Experience")
                 if len(st.session_state.exps)>0:
                     r.selectbox("objectFields",st.session_state.exps,format_func=lambda x : x[1],label_visibility="collapsed",key="selected2")
-                    if st.form_submit_button("Confirmer",use_container_width=True) : 
+                    if st.form_submit_button("Confirm",use_container_width=True) : 
                         st.session_state.comps.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.selected,st.session_state.selected2[1]))
                         st.session_state.submitted = False
                         st.rerun()
                 else:
                     r.error("First create an experience")
-                    st.form_submit_button("Confirmer",disabled=True)
+                    st.form_submit_button("Confirm",disabled=True)
                
             elif st.session_state.selectedType == "Individual Choice":
                 l,r = st.columns(2)
@@ -106,13 +107,13 @@ def matchingTool():
                 l.info("Experience")
                 if len(st.session_state.exps)>0:
                     r.selectbox("objectFields",st.session_state.exps,format_func=lambda x : x[1],label_visibility="collapsed",key="selected2")
-                    if st.form_submit_button("Confirmer",use_container_width=True) : 
+                    if st.form_submit_button("Confirm",use_container_width=True) : 
                         st.session_state.ic.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.selected,st.session_state.selected2[1]))
                         st.session_state.submitted = False
                         st.rerun()
                 else:
                     r.error("First create an experience")
-                    st.form_submit_button("Confirmer",disabled=True)
+                    st.form_submit_button("Confirm",disabled=True)
 
     for i,object in enumerate(st.session_state.exps):
         l,m,r = st.columns([2,8,1])
@@ -144,7 +145,7 @@ def matchingTool():
         with o,st.form("Map your properties"):
             colored_header("Select your Object",description="",color_name="red-50")
             st.selectbox("Select your object",st.session_state.exps + st.session_state.comps + st.session_state.ic,format_func=lambda x: x[1],key="currentObject",label_visibility="collapsed")
-            if st.form_submit_button("Confirmer",use_container_width=True) : st.session_state.submitted2 = True
+            if st.form_submit_button("Confirm",use_container_width=True) : st.session_state.submitted2 = True
         if st.session_state.submitted2:
             with st.form("Property match"):
                 colored_header(f"Map '{st.session_state.currentObject[1]}' properties",description="",color_name="red-50")
@@ -161,12 +162,12 @@ def matchingTool():
                     l,r = st.columns(2)
                     l.info(propriete)
                     r.selectbox("propriete",[f"Is not a property of '{st.session_state.currentObject[1]}'"]  + st.session_state.ontology[st.session_state.currentObject[0]]["Properties"],key = f"property4{propriete}",label_visibility="collapsed")
-                if st.form_submit_button("Confirmer",use_container_width=True) : 
+                if st.form_submit_button("Confirm",use_container_width=True) : 
                     new_list = []
                     i=0
                     for propriete in liste:
                         if st.session_state[f"property4{propriete}"] != f"Is not a property of '{st.session_state.currentObject[1]}'":
-                            st.session_state.rules.append(f"{st.session_state[f'property4{propriete}']} a été associée à {st.session_state.currentObject[1]} / {propriete} ")
+                            st.session_state.rules.append(f"The field '{st.session_state[f'property4{propriete}']}' is associated to the property '{st.session_state.currentObject[1]} / {propriete}' ")
 
                         else:
                             new_list.append(propriete)
@@ -214,7 +215,7 @@ def ontologyMatching():
     matchingTool()
 
     if st.session_state.propertyForm and st.session_state.mappingForm:
-        if st.button("Confirmer le Mapping",use_container_width=True) : st.success("Le mapping a été sauvegardé !")
+        if st.button("Confirm le Mapping",use_container_width=True) : st.success("Le mapping a été sauvegardé !")
 
 if __name__ == "__main__":
 

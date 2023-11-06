@@ -2,6 +2,8 @@ import streamlit as st
 from streamlit_extras.colored_header import colored_header
 import json
 import random
+from rdflib import Graph,SKOS,Literal
+
 
 def randomJob():
     domain = random.randint(0,5)
@@ -17,31 +19,47 @@ def displayGraphG():
 
     if l.button("Précédent",use_container_width=True) : st.session_state.rjob = randomJob()
     if r.button("Suivant",use_container_width=True) :  st.session_state.rjob = randomJob()
+    
     job = st.session_state["rjob"]
 
     d.selectbox("Domaine",st.session_state.GEN.keys(),index=job[0],format_func=lambda x : st.session_state.GEN[x]["prefLabel"][0]["@value"],key="domain")
-    m.selectbox("Métier",st.session_state.GEN[st.session_state.domain]["children"],index=job[1],format_func=lambda x : x["prefLabel"][0]["@value"],key="job")
+    m.selectbox("Métier",st.session_state.GEN[st.session_state.domain]["children"],index=min(job[1],len(st.session_state.GEN[st.session_state.domain]["children"])-1),format_func=lambda x : x["prefLabel"][0]["@value"],key="job")
     indexJob = st.session_state.GEN[st.session_state.domain]["children"].index(st.session_state.job)
-    p.selectbox("Poste",st.session_state.GEN[st.session_state.domain]["children"][indexJob]["children"],index=job[2],format_func=lambda x : x["prefLabel"][0]["@value"],key="occupation")
+    p.selectbox("Poste",st.session_state.GEN[st.session_state.domain]["children"][indexJob]["children"],index=min(job[2],len(st.session_state.GEN[st.session_state.domain]["children"][indexJob]["children"])-1),format_func=lambda x : x["prefLabel"][0]["@value"],key="occupation")
     indexOccupation = st.session_state.GEN[st.session_state.domain]["children"][indexJob]["children"].index(st.session_state.occupation)
 
     with description:
         colored_header(st.session_state.GEN[st.session_state.domain]["children"][indexJob]["children"][indexOccupation]["prefLabel"][0]["@value"],"",color_name="blue-30")
-        st.info(f'Le "{st.session_state.GEN[st.session_state.domain]["children"][indexJob]["children"][indexOccupation]["prefLabel"][0]["@value"]}" est un Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam molestie gravida turpis sit amet pellentesque. Aliquam suscipit posuere egestas. Quisque ac sapien eros. Sed gravida dictum dui ut condimentum. Integer accumsan turpis ut nulla iaculis pulvinar. Donec efficitur, odio quis dignissim consequat, urna magna mattis tellus, vel rutrum ipsum sem ac odio. Donec diam nibh, placerat ut risus a, lobortis blandit risus. Vestibulum ac mattis enim, sed sollicitudin justo. Duis eget pretium libero. Phasellus facilisis velit vel odio molestie, ut interdum nisi facilisis.')
+        st.info(f'The "{st.session_state.GEN[st.session_state.domain]["children"][indexJob]["children"][indexOccupation]["prefLabel"][0]["@value"]}" is a- Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam molestie gravida turpis sit amet pellentesque. Aliquam suscipit posuere egestas. Quisque ac sapien eros. Sed gravida dictum dui ut condimentum. Integer accumsan turpis ut nulla iaculis pulvinar. Donec efficitur, odio quis dignissim consequat, urna magna mattis tellus, vel rutrum ipsum sem ac odio. Donec diam nibh, placerat ut risus a, lobortis blandit risus. Vestibulum ac mattis enim, sed sollicitudin justo. Duis eget pretium libero. Phasellus facilisis velit vel odio molestie, ut interdum nisi facilisis.')
 
+def getRandomPosition():
+    return random.choice(list(st.session_state.ROME_jobs))
+
+def getJobCard(position):
+    subject = st.session_state.graph.value(predicate=SKOS.prefLabel,object=Literal(position, lang="fr"))
+    jobCard = st.session_state.graph.value(subject=subject,predicate=SKOS.broader)
+    return st.session_state.graph.value(subject=jobCard,predicate=SKOS.prefLabel)
+
+def getDomain(jobCard):
+    subject = st.session_state.graph.value(predicate=SKOS.prefLabel,object=Literal(jobCard, lang="fr"))
+    domain = st.session_state.graph.value(object=subject,predicate=SKOS.narrower)
+    return st.session_state.graph.value(subject=domain,predicate=SKOS.prefLabel)
 
 def displayGraphD():
     d,f,p = st.columns(3)
-    d.multiselect("Filtre Domaine",["Domaine 1","Domaine 2","Domaine 3"])
-    f.multiselect("Filtre Fiche Métier",["Fiche 1","Fiche 2","Fiche 3"])
-    p.multiselect("Filtre apellation",["Appellation 1","Appelation 2","Appelation 3"])
+    d.multiselect("Domain Filter",["Domain 1","Domain 2","Domain 3"])
+    f.multiselect("Job Card Filter",["Job Card 1","Job Card 2","Job Card 3"])
+    p.multiselect("Position Filter",["Position 1","Position 2","Position 3"])
     for i in range(3):
-        with st.expander(f"Suggestion n°{i+1} / Domaine / Fiche métier /",expanded=True):
-            t,m,v = st.columns([8,2,1])
-            t.success("Métier du ROME correspondant")
+        position = getRandomPosition()
+        jobCard = getJobCard(position) 
+        domain = getDomain(jobCard) 
+        with st.expander(f"{domain} / {jobCard} /",expanded=True):
+            t,m = st.columns([8,2])
+            t.success(position)
             m.metric("Match",f"{100-7*i} %",label_visibility="collapsed")
-            v.button("✅",key=f"valid_{i}")
-    st.button("Voir plus",use_container_width=True)
+            st.button("Confirm",key=f"valid_{i}",use_container_width=True)
+    st.button("See More",use_container_width=True)
 
 
 
@@ -56,7 +74,7 @@ def displaySidebar():
         l.button("ROME Framework",use_container_width=True)
         r.button("ESCO Framework",use_container_width=True)
         st.header("Automatic Validation",divider="red")
-        st.number_input("Seuil de validation automatique",0,100,95,1,key="seuil")
+        st.number_input("Automatic Validation Treshold",0,100,95,1,key="seuil")
         _,l,r = st.columns([1,2,2])
         st.button("Automatic Validation",use_container_width=True)
         st.progress(100-st.session_state.seuil,f"Reste à évaluer {int( st.session_state.seuil * 1.35)}/{135}")
@@ -70,10 +88,10 @@ def displayMatching():
         values = [55,32,20,28]
         levels = st.columns(4)
         colors = ["green","yellow","orange","red"]
-        desc = ["Alignements validés à la main ou par validation automatique",
-                "Alignements pour lesquels l'algorithme est confiant",
-                "Alignements pour lesquels l'algorithme hésite entre plusieurs possibilités",
-                "Alignements pour lesquels l'algorithme ne trouve pas de correspondance"]
+        desc = ["Items mapped by hand or by automatic validation",
+                "Items that have a 'probable' mapping by the algorithm",
+                "Items that have several possible mappings by the algorithm ",
+                "Items that dont have satisfactory mappings by the algorithm"]
         for i,level in enumerate(levels):
             with level:
                 colored_header(f"Seuil de confiance {i+1} - {((1-i/5)*st.session_state.seuil):.1f}%",description=desc[i],color_name=f"{colors[i]}-70")
@@ -92,13 +110,19 @@ def displayMatches():
                 family = st.session_state.GEN[domain]["children"][job[1]]["prefLabel"][0]["@value"]
                 appelation = st.session_state.GEN[domain]["children"][job[1]]["children"][job[2]]["prefLabel"][0]["@value"]
                 l.info(f"{domainName}  ---  {family}  ---  {appelation}")
-                r.success("Domaine / Fiche métier / metier ROME")
+                r.success("Domain / Job Card / ROME Position")
                 t.form_submit_button("🗑️",use_container_width=True)
 
 
 def referentialMatching():
-    st.session_state.GEN = json.load(open("app/data/GEN/transformed_referentielGEN.json","rb"))
+    
     if "rjob" not in st.session_state:
+        with st.spinner("Loading Frameworks"):
+            st.session_state.GEN = json.load(open("app/data/GEN/transformed_referentielGEN.json","rb"))
+            st.session_state.ROME_jobs = json.load(open("app/data/ROME/descriptionsROME.json","rb"))
+            st.session_state.graph = Graph()
+            st.session_state.graph.parse("app/data/ROME/referentielROME.jsonld")
+
         st.session_state["rjob"] = randomJob()
         st.session_state["confiance"] = 0
     if "rules" not in st.session_state:
