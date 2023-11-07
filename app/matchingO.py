@@ -9,13 +9,13 @@ def getReferentiel():
 def getGaming():
     reset()
     st.session_state["edTechID"] = "Gaming Tests"
-    st.session_state.propertyList = ["Experience Name",  "Date",  "Results"]
+    st.session_state.propertyList = ["Experience Name",  "Date",  "Associated Soft Skills"]
     return None
 
 def getJobsong():
     reset()
     st.session_state["edTechID"] = "Jobsong"
-    st.session_state.propertyList = ["Experience Id","Experience Label","Associated Hard Skills","Associated Soft Skills","Suggested Missions","Liked Missons"]
+    st.session_state.propertyList = ["Experience Id","Experience Label","Associated Hard Skills","Suggested Missions","Liked Missons"]
     return None
 
 def getInokufu():
