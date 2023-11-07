@@ -90,8 +90,8 @@ def displayMatching():
         colors = ["green","yellow","orange","red"]
         desc = ["Items mapped by hand or by automatic validation",
                 "Items that have a 'probable' mapping by the algorithm",
-                "Items that have several possible mappings by the algorithm ",
-                "Items that dont have satisfactory mappings by the algorithm"]
+                "Items that have several possible mappings",
+                "Items that dont have satisfactory mappings"]
         for i,level in enumerate(levels):
             with level:
                 colored_header(f"Seuil de confiance {i+1} - {((1-i/5)*st.session_state.seuil):.1f}%",description=desc[i],color_name=f"{colors[i]}-70")
@@ -100,7 +100,8 @@ def displayMatching():
 
 def displayMatches():
     with st.expander("Matches"):
-        st.header(f"Matches - Seuil de confiance {st.session_state.confiance+1}",divider="red",anchor="matches")
+        colors = ["green","yellow","orange","red"]
+        colored_header(f"Matches - Seuil de confiance {st.session_state.confiance+1}","",color_name=f"{colors[st.session_state.confiance]}-70")
         for i in range(5):
             with st.form(f"match  {i}"):
                 l,r,t = st.columns([10,10,1])
@@ -110,7 +111,10 @@ def displayMatches():
                 family = st.session_state.GEN[domain]["children"][job[1]]["prefLabel"][0]["@value"]
                 appelation = st.session_state.GEN[domain]["children"][job[1]]["children"][job[2]]["prefLabel"][0]["@value"]
                 l.info(f"{domainName}  ---  {family}  ---  {appelation}")
-                r.success("Domain / Job Card / ROME Position")
+                position = getRandomPosition()
+                jobCard = getJobCard(position) 
+                domain = getDomain(jobCard) 
+                r.success(f"{domain} --- {jobCard} --- {position}")
                 t.form_submit_button("🗑️",use_container_width=True)
 
 
