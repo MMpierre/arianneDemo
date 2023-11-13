@@ -94,14 +94,14 @@ def displayMatching():
                 "Items that dont have satisfactory mappings"]
         for i,level in enumerate(levels):
             with level:
-                colored_header(f"Seuil de confiance {i+1} - {((1-i/5)*st.session_state.seuil):.1f}%",description=desc[i],color_name=f"{colors[i]}-70")
-                if st.form_submit_button(f"Accéder ({values[i]})",use_container_width=True): st.session_state["confiance"] = i 
+                colored_header(f"Confidence Threshold {i+1} - {((1-i/5)*st.session_state.seuil):.1f}%",description=desc[i],color_name=f"{colors[i]}-70")
+                if st.form_submit_button(f"Access ({values[i]})",use_container_width=True): st.session_state["confiance"] = i 
 
 
 def displayMatches():
     with st.expander("Matches"):
         colors = ["green","yellow","orange","red"]
-        colored_header(f"Matches - Seuil de confiance {st.session_state.confiance+1}","",color_name=f"{colors[st.session_state.confiance]}-70")
+        colored_header(f"Matches - Confidence Threshold {st.session_state.confiance+1}","",color_name=f"{colors[st.session_state.confiance]}-70")
         for i in range(5):
             with st.form(f"match  {i}"):
                 l,r,t = st.columns([10,10,1])

@@ -3,109 +3,233 @@ from streamlit_extras.colored_header import colored_header
 import json
 
 
+# Initialization
+
 def getReferentiel():
     st.session_state.ontology = json.load(open("app/ressources/smart.json"))["SmartOntology"]
 
 def getGaming():
+    initialize_session()
     st.session_state["edTechID"] = "Gaming Tests"
-    st.session_state.propertyList = ["Experience Name", "User ID", "Date", "Associated Soft Skill Block", "Results"]
+    st.session_state.fieldList = ["Experience Name",  "Date",  "Associated Soft Skills"]
     return None
 
 def getJobsong():
+    initialize_session()
     st.session_state["edTechID"] = "Jobsong"
-    st.session_state.propertyList = ["Id Profil","Nom","Prénom","Mail","Adresse","Rayon","Expérience 1 - ID","Expérience 2 - ID","Expérience 3 - ID","Suggested Missions","Liked Missions "]
+    st.session_state.fieldList = ["Experience Id","Experience Label","Associated Hard Skills","Suggested Missions","Liked Missons"]
     return None
 
 def getInokufu():
+    initialize_session()
     st.session_state["edTechID"] = "Inokufu"
-    st.session_state.propertyList = ["Nom","Url","Image","Keywords","Date"]
+    st.session_state.fieldList = ["Nom","Url","Image","Keywords","Date"]
     return None
+
+def initialize_session():
+    st.cache_data.clear()
+    st.cache_resource.clear()
+    """Initialise ou réinitialise les variables de session."""
+    keys = [ "submitted", "submitted2", "propertyForm", "mappingForm",
+        "experiences", "competencys", "choices", "rules"]
+    for key in keys:
+        st.session_state[key] = False if key in ["submitted", "submitted2", "propertyForm", "mappingForm"] else []
+    getReferentiel()
+    
+# Affichage des infos
 
 def displaySidebar():
     with st.sidebar:
-        st.header("Use Cases",divider="red")
-        a,b,c = st.columns(3)
-        if a.button("Gaming Tests",use_container_width=True): st.session_state.data = getGaming()
-        if b.button("User Profiles",use_container_width=True): st.session_state.data = getJobsong()
-        if c.button("Avaiblable Courses",use_container_width=True): st.session_state.data = getInokufu()
+        st.header("Use Cases", divider="red")
+        create_sidebar_buttons()
 
-        colored_header("EdTech ID",description="",color_name="red-70")
+        colored_header("EdTech ID", description="", color_name="red-70")
         st.info(st.session_state.edTechID)
-        colored_header("Uploadez votre fichier",description="",color_name="red-70")
-    uploaded_file = st.sidebar.file_uploader("Choose a JSON file", type='json',label_visibility="collapsed",disabled=True)
-    if st.sidebar.button("Reset",use_container_width=True): 
+
+        colored_header("EdTech File", description="", color_name="red-70")
+        st.error("File to DIsplay")
+        if st.sidebar.button("Reset", use_container_width=True): 
+            initialize_session()
+
+def create_sidebar_buttons():
+    """Crée les boutons dans la barre latérale."""
+    a, b = st.columns(2)
+    st.sidebar.file_uploader("Choose a JSON file", type='json', label_visibility="collapsed", key="file",accept_multiple_files=False,)
+
+    if a.button("Gaming Tests", use_container_width=True):
+        getGaming()
+    if b.button("Jobsong", use_container_width=True):
+        getJobsong()
+    if a.button("Inokufu", use_container_width=True):
+        getInokufu()
+    if b.button("Your Own", use_container_width=True,disabled=not(st.session_state.file)):
+        a=1
+
+
+def display_schema():
+    """Affiche le schéma de l'ontologie."""
+    with st.expander("Schéma", expanded=False):
+        colored_header("ARIANE pivot ontology", "", color_name="red-70")
+        st.image("app/ressources/ontologyVisualization.png", use_column_width=True)
+
+# Creation d'objets
+
+
+def createObjects():
+    st.header("Create your objects",divider="red")
+    c,h = st.columns([1,2])
+    with c:
+        create_item_form()
+    with h:
+        if st.session_state.submitted:
+            handle_item_submission()
+    display_existing_items()
+
+def create_item_form():
+    with st.form("Item type"):
+        colored_header("Add a new item:", description="", color_name="red-50")
+        st.selectbox("Select your Object type", ["Experience", "Competency", "Choice"], key="selectedType")
+        object_count = len(st.session_state.competencys) + len(st.session_state.experiences) + len(st.session_state.choices)
+        st.text_input("Name your Object", f"{st.session_state.edTechID} - Object {object_count}", help="Name your Object", key="objectName")
+        if st.form_submit_button("Confirm", use_container_width=True) : st.session_state.submitted = True
+
+def handle_item_submission():
+    with st.form("property match"):
+        colored_header("Define mandatory properties", description="Add each field which is an experience, a competency or an individual choice", color_name="red-50")
+        item_type_handlers = {
+            "Experience": handle_experience_submission,
+            "Competency": handle_competency_submission,
+            "Choice": handle_choice_submission
+        }
+        selected_type_handler = item_type_handlers.get(st.session_state.selectedType, lambda: None)
+        selected_type_handler()
+
+def handle_experience_submission():
+    l,r = st.columns(2)
+    l.info("Experience Type")
+    r.selectbox("objectFields",["Professional","Vocationnal","Educational","Test","Custom"],label_visibility="collapsed",key="selected")
+    l,r = st.columns(2)
+    l.info("Experience Status")
+    r.selectbox("objectFields",["Past","Ongoing","Suggested"],label_visibility="collapsed",key="selected2")
+    if st.form_submit_button("Confirm",use_container_width=True) : 
+        st.session_state.experiences.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.selected,st.session_state.selected2))
         st.session_state.submitted = False
-        st.session_state.submitted2 = False
-        st.session_state.propertyForm = False
-        st.session_state.mappingForm = False
+        st.rerun()
 
-    # Initialize an empty dictionary to hold your JSON data
-    data = {}
+def handle_competency_submission():
+    l,r = st.columns(2)
+    l.info("Skill Type")
+    r.selectbox("objectFields",["Hard Skill","Soft Skill","Personality Trait","Mixed"],label_visibility="collapsed",key="selected")
+    l,r = st.columns(2)
+    l.info("Experience")
+    if len(st.session_state.experiences)>0:
+        r.selectbox("objectFields",st.session_state.experiences,format_func=lambda x : x[1],label_visibility="collapsed",key="selected2")
+        if st.form_submit_button("Confirm",use_container_width=True) : 
+            st.session_state.competencys.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.selected,st.session_state.selected2[1]))
+            st.session_state.submitted = False
+            st.rerun()
+    else:
+        r.error("First create an experience")
+        st.form_submit_button("Confirm",disabled=True)
 
-    # Load the JSON file if uploaded
-    if uploaded_file is not None:
-        uploaded_data_read = uploaded_file.read()
-        data = json.loads(uploaded_data_read)
-            
+def handle_choice_submission():
+    l,r = st.columns(2)
+    l.info("Polarity")
+    r.selectbox("objectFields",["Like","Level"],label_visibility="collapsed",key="selected")
+    l,r = st.columns(2)
+    l.info("Experience")
+    if len(st.session_state.experiences)>0:
+        r.selectbox("objectFields",st.session_state.experiences,format_func=lambda x : x[1],label_visibility="collapsed",key="selected2")
+        if st.form_submit_button("Confirm",use_container_width=True) : 
+            st.session_state.choices.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.selected,st.session_state.selected2[1]))
+            st.session_state.submitted = False
+            st.rerun()
+    else:
+        r.error("First create an experience")
+        st.form_submit_button("Confirm",disabled=True)
+
+           
+def display_existing_items():
+    item_types = {
+        "Experience": st.session_state.experiences,
+        "Competency": st.session_state.competencys,
+        "Choice": st.session_state.choices
+    }
+    if len(item_types["Experience"])>0:
+        cols = st.columns([2,2,4,1])
+        names = ["Type","Name","Properties","X"]
+        for i in range(4):
+            cols[i].subheader(names[i],divider="red")
+    for item_type, items in item_types.items():
+        for i, item in enumerate(items):
+            display_item(item_type, item, i)
+
+def display_item(item_type, item, index):
+    cols = st.columns([2, 2,2,2, 1])
+    cols[0].success(f"{item_type} n°{index}")
+    for i,property in enumerate(item[1:]):
+        cols[i+1].info(property)
+    if cols[-1].button("🗑️", use_container_width=True, key=f"{item_type.lower()}{index}"):
+        items = getattr(st.session_state, f"{item_type.lower()}s")
+        items.pop(index)
+        st.rerun()
+
+# Matching
 
 def matchingTool():
-    l,r = st.columns([1,2])
-    with l,st.form("Item type"):
-        colored_header("Select you item type :",description='You can check your object type in the table above',color_name="red-50")
-        st.selectbox("type",st.session_state.ontology.keys(),key="selectedType",label_visibility="collapsed")
-        if st.form_submit_button("Confirmer",use_container_width=True): st.session_state.submitted = True
-    if st.session_state.submitted:
-        with r,st.form("property match"):
-            colored_header("Select the objects in the fields",description="Add each field which is an experience, a competency or an individual choice",color_name="red-50")
-            st.multiselect("objectFields",st.session_state.propertyList,label_visibility="collapsed",key="selected")
-            if st.form_submit_button("Confirmer",use_container_width=True) : st.session_state.submitted2 = True
-   
-    colored_header("Matching",description="",color_name="red-70") 
-    if st.session_state.submitted2 == True:
-        
-        o,p = st.columns(2)
-        with o,st.form("Object match"):
-            colored_header("Match the Objects",description="",color_name="red-50")
-            for object in st.session_state.selected:
-                l,r = st.columns(2)
-                l.info(object)
-                r.selectbox("propriete",list(st.session_state.ontology[st.session_state.selectedType]["Objects"]) + ["New Object"],key = f"object4{object}",label_visibility="collapsed")
-            if st.form_submit_button("Confirmer",use_container_width=True) : st.session_state.mappingForm = True
-        with p,st.form("Property match"):
-            colored_header("Match the Properties",description="",color_name="red-50")
-            for propriete in set(st.session_state.propertyList).difference(set(st.session_state.selected)):
-                l,r = st.columns(2)
-                l.info(propriete)
-                r.selectbox("propriete",list(st.session_state.ontology[st.session_state.selectedType]["Properties"]) + ["New Property"],key = f"property4{propriete}",label_visibility="collapsed")
-            if st.form_submit_button("Confirmer",use_container_width=True) : st.session_state.propertyForm = True
-        if st.session_state.mappingForm : o.success("Object Mapping Done")
-        if st.session_state.propertyForm : p.success("Property Mapping Done")
+    colored_header("Mapping",description="Map all your fields to their relevant object and property",color_name="red-70")
+    if len(st.session_state.experiences)>0:
+        createPropertyForm()           
+        if st.button("Confirm all mappings",use_container_width=True):
+            st.success("Afficher le fichier RML ?")
+    else:
+        st.warning("First create an object in the 'Object Creation' tab")                         
+
+def createPropertyForm():
+    cols = st.columns(3)
+    names = ["Field","Object","Propery"]
+    for i in range(3):
+        cols[i].subheader(names[i],divider="red")
+    for field in st.session_state.fieldList:
+        createMatchingForm(field)
+
+def createMatchingForm(field):
+    f,o,p = st.columns(3)
+    f.info(field)
+    o.selectbox("object",st.session_state.experiences + st.session_state.competencys + st.session_state.choices,label_visibility='collapsed', format_func=lambda x:x[1],key=f"object{field}")
+    properties = st.session_state.ontology[st.session_state[f"object{field}"][0]]["Properties"]
+    p.selectbox("Propriété",properties,key=f"property4{field}",label_visibility="collapsed")
+
+# def displayMappings():
+#     for i,rule in enumerate(st.session_state.rules):
+#         l,m,r = st.columns([1,10,1])
+#         l.success(f"Rule {i}")
+#         m.success(rule)
+#         if r.button("🗑️",use_container_width=True,key = f"Rule{i}"): 
+#             st.session_state.new_list.append(rule.split(" ")[0])
+#             del st.session_state.rules[i]
+#             st.rerun()
 
 
 def ontologyMatching2():
-    st.title("Outil de Mapping d'ontologie")
+    """Logique principale de l'outil de matching d'ontologie."""
+    st.title("Outil de Mapping d'Ontologie")
     if "submitted" not in st.session_state:
-        st.session_state.submitted = False
-        st.session_state.submitted2 = False
-        st.session_state.propertyForm = False
-        st.session_state.mappingForm = False
         getGaming()
     getReferentiel()
     displaySidebar()
-    st.session_state.col2M, st.session_state.col3M = st.columns(2)
+    display_schema()
+    tabs = st.tabs(["Object Creation","Field Mapping"])
+    with tabs[0]:
+        createObjects()
+    with tabs[1]:
+        matchingTool()
 
-    with st.expander("Schéma",expanded=True):
-        colored_header("ARIANE pivot ontology","",color_name="red-70")
-        st.image("app/ressources/ontologyVisualization.png",use_column_width=True)
 
-    colored_header("Mapping",description="",color_name="red-70")
-    matchingTool()
 
-    if st.session_state.propertyForm and st.session_state.mappingForm:
-        if st.button("Confirmer le Mapping",use_container_width=True) : st.success("Le mapping a été sauvegardé !")
+# Définissez ici les autres fonctions nécessaires pour réduire la duplication de code.
 
 if __name__ == "__main__":
-
     st.set_page_config(layout='wide')
     st.title("Outil de Matching d'Ontologie")
-    ontologyMatching()
+    ontology_matching()
