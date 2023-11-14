@@ -193,7 +193,7 @@ def matchingTool():
     colored_header("Mapping",description="Map all your fields to their relevant object and property",color_name="red-70")
     if len(st.session_state.experiences)>0:
         createPropertyForm()           
-        if st.button("Confirm all mappings",use_container_width=True):
+        if st.button("Confirm mappings",use_container_width=True):
             createRules()
         if len(st.session_state.rules)>0:
             displayRules()
