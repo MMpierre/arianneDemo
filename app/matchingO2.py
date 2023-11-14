@@ -11,7 +11,7 @@ def getReferentiel():
 def getGaming():
     initialize_session()
     st.session_state["edTechID"] = "Gaming Tests"
-    st.session_state.fieldList = ["Experience Name",  "Date",  "Associated Soft Skills"]
+    st.session_state.fieldList = ["Experience Name",  "Date", "Soft Skills", "Associated Soft Skill Block", "User ID", "Results"]
     return None
 
 def getJobsong():
@@ -26,12 +26,21 @@ def getInokufu():
     st.session_state.fieldList = ["Nom","Url","Image","Keywords","Date"]
     return None
 
+def parseFile():
+    initialize_session()
+    st.session_state['edTechID'] = st.session_state.file.name[:-5]
+    data = json.load(st.session_state.file)
+    
+    first_item = data[0] if isinstance(data, list) else data
+    st.session_state.fieldList = [key for key in first_item.keys()]
+
+
 def initialize_session():
     st.cache_data.clear()
     st.cache_resource.clear()
     """Initialise ou réinitialise les variables de session."""
     keys = [ "submitted", "submitted2", "propertyForm", "mappingForm",
-        "experiences", "competencys", "choices", "rules"]
+        "experiences", "competencys", "choices", "rules","mapped"]
     for key in keys:
         st.session_state[key] = False if key in ["submitted", "submitted2", "propertyForm", "mappingForm"] else []
     getReferentiel()
@@ -47,7 +56,11 @@ def displaySidebar():
         st.info(st.session_state.edTechID)
 
         colored_header("EdTech File", description="", color_name="red-70")
-        st.error("File to DIsplay")
+        with st.expander(st.session_state.edTechID+".json"):
+            for field in st.session_state.fieldList[:-1]:
+                st.write(f"   ├─ {field} \n")
+            st.write(f"   └─ {st.session_state.fieldList[-1]} \n")
+
         if st.sidebar.button("Reset", use_container_width=True): 
             initialize_session()
 
@@ -63,7 +76,7 @@ def create_sidebar_buttons():
     if a.button("Inokufu", use_container_width=True):
         getInokufu()
     if b.button("Your Own", use_container_width=True,disabled=not(st.session_state.file)):
-        a=1
+        parseFile()
 
 
 def display_schema():
@@ -181,34 +194,50 @@ def matchingTool():
     if len(st.session_state.experiences)>0:
         createPropertyForm()           
         if st.button("Confirm all mappings",use_container_width=True):
-            st.success("Afficher le fichier RML ?")
+            createRules()
+        if len(st.session_state.rules)>0:
+            displayRules()
     else:
         st.warning("First create an object in the 'Object Creation' tab")                         
 
 def createPropertyForm():
     cols = st.columns(3)
-    names = ["Field","Object","Propery"]
+    names = ["Field","Object","Property"]
     for i in range(3):
         cols[i].subheader(names[i],divider="red")
+        
     for field in st.session_state.fieldList:
-        createMatchingForm(field)
+        if field not in st.session_state.mapped:
+            createMatchingForm(field)
 
 def createMatchingForm(field):
     f,o,p = st.columns(3)
     f.info(field)
-    o.selectbox("object",st.session_state.experiences + st.session_state.competencys + st.session_state.choices,label_visibility='collapsed', format_func=lambda x:x[1],key=f"object{field}")
-    properties = st.session_state.ontology[st.session_state[f"object{field}"][0]]["Properties"]
-    p.selectbox("Propriété",properties,key=f"property4{field}",label_visibility="collapsed")
+    o.selectbox("object",[[0,"No Mapping"]] + st.session_state.experiences + st.session_state.competencys + st.session_state.choices,label_visibility='collapsed', format_func=lambda x:x[1],key=f"object{field}")
+    if st.session_state[f"object{field}"][1] != "No Mapping":
+        properties = st.session_state.ontology[st.session_state[f"object{field}"][0]]["Properties"]
+        p.selectbox("Propriété",properties,key=f"property4{field}",label_visibility="collapsed")
+    else:
+        p.selectbox("Propriété",[],key=f"property4{field}",label_visibility="collapsed")
 
-# def displayMappings():
-#     for i,rule in enumerate(st.session_state.rules):
-#         l,m,r = st.columns([1,10,1])
-#         l.success(f"Rule {i}")
-#         m.success(rule)
-#         if r.button("🗑️",use_container_width=True,key = f"Rule{i}"): 
-#             st.session_state.new_list.append(rule.split(" ")[0])
-#             del st.session_state.rules[i]
-#             st.rerun()
+def createRules():
+    for field in st.session_state.fieldList:
+        if st.session_state[f"object{field}"][1] != "No Mapping":
+            rule = f"'{field}' is associated with the property '{st.session_state[f'property4{field}']}' of the object '{st.session_state[f'object{field}'][1]}'"
+            st.session_state.rules.append(rule)
+            st.session_state.mapped.append(field)
+    st.rerun()
+
+
+def displayRules():
+    for i,rule in enumerate(st.session_state.rules):
+        l,m,r = st.columns([1,10,1])
+        l.success(f"Rule {i}")
+        m.success(rule)
+        if r.button("🗑️",use_container_width=True,key = f"Rule{i}"): 
+            del st.session_state.rules[i]
+            del st.session_state.mapped[i]
+            st.rerun()
 
 
 def ontologyMatching2():

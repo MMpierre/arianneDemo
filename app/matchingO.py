@@ -9,7 +9,7 @@ def getReferentiel():
 def getGaming():
     reset()
     st.session_state["edTechID"] = "Gaming Tests"
-    st.session_state.propertyList = ["Experience Name",  "Date",  "Associated Soft Skills"]
+    st.session_state.propertyList = ["Experience Name",  "Date",  "Associated Soft Skill Block", "User ID", "Results"]
     return None
 
 def getJobsong():

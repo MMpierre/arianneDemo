@@ -5,11 +5,11 @@
             "Objects": ["learnedIn", "belongsTo"]
         },
         "Choice": {
-            "Properties": ["ID", "polarity", "about"],
+            "Properties": ["ID", "polarityValue"],
             "Objects": ["profile"]
         },
         "Experience": {
-            "Properties": ["id", "label", "description", "expType", "dateFrom", "dateTo", "results", "validatedBy"],
+            "Properties": ["id", "label", "description", "dateFrom", "dateTo", "results", "validatedBy"],
             "Objects": ["profile"]
         }
     }
