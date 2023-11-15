@@ -10,7 +10,7 @@ def getReferentiel():
 
 def getGaming():
     initialize_session()
-    st.session_state["edTechID"] = "Gaming Tests"
+    st.session_state["edTechID"] = "gamingTest"
     st.session_state.fieldList = ["Experience Name",  "Date", "Soft Skills", "Associated Soft Skill Block", "User ID", "Results"]
     return None
 
@@ -34,21 +34,25 @@ def parseFile():
     first_item = data[0] if isinstance(data, list) else data
     st.session_state.fieldList = [key for key in first_item.keys()]
 
+    st.session_state.download = True
+
 
 def initialize_session():
     st.cache_data.clear()
     st.cache_resource.clear()
     """Initialise ou réinitialise les variables de session."""
-    keys = [ "submitted", "submitted2", "propertyForm", "mappingForm",
+    keys = [ "submitted", "submitted2", "propertyForm", "mappingForm","download",
         "experiences", "competencys", "choices", "rules","mapped"]
     for key in keys:
-        st.session_state[key] = False if key in ["submitted", "submitted2", "propertyForm", "mappingForm"] else []
+        st.session_state[key] = False if key in ["submitted", "download","submitted2", "propertyForm", "mappingForm"] else []
     getReferentiel()
     
 # Affichage des infos
 
 def displaySidebar():
     with st.sidebar:
+        if st.sidebar.button("Reset", use_container_width=True): 
+            initialize_session()
         st.header("Use Cases", divider="red")
         create_sidebar_buttons()
 
@@ -60,9 +64,12 @@ def displaySidebar():
             for field in st.session_state.fieldList[:-1]:
                 st.write(f"   ├─ {field} \n")
             st.write(f"   └─ {st.session_state.fieldList[-1]} \n")
+        st.session_state['edTechID'] != st.session_state.file.name[:-5]
+        if st.session_state.download:
+            st.sidebar.download_button("Download Sample File",data="",use_container_width=True,disabled=True)
+        else:
+            st.sidebar.download_button("Download Sample File",data=open(f"app/data/jsons/{st.session_state.edTechID.lower()}.json"),file_name=f"{st.session_state.edTechID.lower()}.json",use_container_width=True)
 
-        if st.sidebar.button("Reset", use_container_width=True): 
-            initialize_session()
 
 def create_sidebar_buttons():
     """Crée les boutons dans la barre latérale."""
