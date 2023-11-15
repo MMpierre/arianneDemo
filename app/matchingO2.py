@@ -64,7 +64,7 @@ def displaySidebar():
             for field in st.session_state.fieldList[:-1]:
                 st.write(f"   ├─ {field} \n")
             st.write(f"   └─ {st.session_state.fieldList[-1]} \n")
-        st.session_state['edTechID'] != st.session_state.file.name[:-5]
+            
         if st.session_state.download:
             st.sidebar.download_button("Download Sample File",data="",use_container_width=True,disabled=True)
         else:
