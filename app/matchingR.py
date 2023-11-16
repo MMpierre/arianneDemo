@@ -10,9 +10,9 @@ def displayGraphG():
     d,m,p = st.columns(3)
     description = st.container()
 
-    d.selectbox("Domaine",st.session_state.GEN.keys(),index=0,format_func=lambda x : st.session_state.GEN[x]["prefLabel"][0]["@value"],key="domain")
-    m.selectbox("Métier",st.session_state.GEN[st.session_state.domain]["children"],index=0,format_func=lambda x : x["prefLabel"][0]["@value"],key="job")
-    p.selectbox("Poste",st.session_state.job["children"],index=0,format_func=lambda x : x["prefLabel"][0]["@value"],key="occupation")
+    d.selectbox("Domaine",st.session_state.GEN.keys(),index=2,format_func=lambda x : st.session_state.GEN[x]["prefLabel"][0]["@value"],key="domain")
+    m.selectbox("Métier",st.session_state.GEN[st.session_state.domain]["children"],index=3,format_func=lambda x : x["prefLabel"][0]["@value"],key="job")
+    p.selectbox("Poste",st.session_state.job["children"],index=1,format_func=lambda x : x["prefLabel"][0]["@value"],key="occupation")
 
     with description:
         occupation = st.session_state.occupation["prefLabel"][0]["@value"]
@@ -77,7 +77,7 @@ def displaySidebar():
         l.button("ROME Framework",use_container_width=True)
         r.button("ESCO Framework",use_container_width=True)
         st.header("Automatic Validation",divider="red")
-        st.slider("Automatic Validation Treshold",0,100,95,1,key="seuil")
+        st.slider("Automatic Validation Treshold",0,100,50,1,key="seuil")
         _,l,r = st.columns([1,2,2])
         st.button("Automatic Validation",use_container_width=True)
         st.progress(100-st.session_state.seuil,f"Reste à évaluer {((st.session_state.matching['score'] > 0) & (st.session_state.matching['score'] < st.session_state.seuil)).sum()}/{len(st.session_state.matching)}")
@@ -123,6 +123,10 @@ def displayMatches():
             g.info(row["Libelle GEN"])
             r.info(row["Libelle ROME"])
             s.success(f"{row['score']//0.1/10} %")
+        if len(df)>20:
+            g.info("...")
+            r.info("...")
+            s.success("...")
 
 def initialization():
     st.session_state.GEN = json.load(open("app/data/GEN/transformed_referentielGEN.json","rb"))
