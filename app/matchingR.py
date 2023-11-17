@@ -61,11 +61,15 @@ def displayGraphD():
             st.warning("No matches for selected filters")
         with st.container():
             for rank,row in df.iterrows():
+                try:
+                    description = st.session_state.defs[row["Libelle ROME"]]
+                except:
+                    description = "No description available"
                 
                 if row["V"] == "Oui": 
                     st.subheader(f'{row["score"]//0.1/10} % | {row["Code ROME"]} - {row["Libelle ROME"]}',divider="green")
                     with st.expander("Description"):
-                        st.info(st.session_state.defs[row["Libelle ROME"]])
+                        st.info(description)
 
                     if st.button("Unmatch",use_container_width=True,key=f"{rank}submit"): 
                         st.session_state.matching.loc[rank,"V"] = "Non"
@@ -74,7 +78,7 @@ def displayGraphD():
                 elif row["V"] == "Non" :  
                     st.subheader(f'{row["score"]//0.1/10} % | {row["Code ROME"]} - {row["Libelle ROME"]}',divider="red")
                     with st.expander("Description"):
-                        st.info(st.session_state.defs[row["Libelle ROME"]])
+                        st.info(description)
 
                     if st.button("Match",use_container_width=True,key=f"{rank}submit"): 
                         st.session_state.matching.loc[rank,"V"] = "Oui"
@@ -83,7 +87,7 @@ def displayGraphD():
                 else:
                     st.subheader(f'{row["score"]//0.1/10} % | {row["Code ROME"]} - {row["Libelle ROME"]}',divider="orange")
                     with st.expander("Description"):
-                        st.info(st.session_state.defs[row["Libelle ROME"]])
+                        st.info(description)
                     l,r = st.columns(2)
                     
                     if l.button("Match",use_container_width=True,key=f"{rank}lsubmit"): 
@@ -108,54 +112,64 @@ def displaySidebar():
         l.button("ROME Framework",use_container_width=True)
         r.button("ESCO Framework",use_container_width=True)
         st.header("Automatic Validation",divider="red")
-        st.slider("Automatic Validation Treshold",0,100,50,1,key="seuil")
-        _,l,r = st.columns([1,2,2])
-        st.button("Automatic Validation",use_container_width=True)
-        st.progress(100-st.session_state.seuil,f"Reste à évaluer {((st.session_state.matching['score'] > 0) & (st.session_state.matching['score'] < st.session_state.seuil)).sum()}/{len(st.session_state.matching)}")
-        file = st.file_uploader("Upload your file",label_visibility='collapsed',disabled=True)
+        st.slider("Automatic Validation Treshold",0,99,90,1,key="seuil")
         
 
 
 def displayMatching():
-    with st.form("Matching"):
-        st.header("Progression",divider="red")
-        st.session_state.bools = [ (st.session_state.matching["score"] < 100) & (st.session_state.matching["score"] > 75),
-                                    (st.session_state.matching["score"] < 75) & (st.session_state.matching["score"] > 50),
-                                    (st.session_state.matching["score"] < 50) & (st.session_state.matching["score"] > 25),
-                                    (st.session_state.matching["score"] < 25) & (st.session_state.matching["score"] > 0)]
-        values = [len(st.session_state.matching.loc[bool,"Libelle GEN"].unique()) for bool in st.session_state.bools]
-        levels = st.columns(4)
-        colors = ["green","yellow","orange","red"]
-        names = [f"Confidence Threshold {i+1}" for i in range(4)]
-        desc = [ f"Mappings with a score above {75}%",
-                f"Mappings with a score above {50}%",
-                f"Mappings with a score below {25}%",
-                 f"Mappings with a score above {0}%"]
-        for i,level in enumerate(levels):
-            with level:
-                colored_header(names[i],description=desc[i],color_name=f"{colors[i]}-70")
-                if st.form_submit_button(f"Access ({values[i]})",use_container_width=True): st.session_state["confiance"] = i 
+    st.header("Progression",divider="red")
+    st.session_state.bools = [ (st.session_state.matching["score"] <= 100) & (st.session_state.matching["score"] > st.session_state.seuil),
+                                (st.session_state.matching["score"] < st.session_state.seuil) & (st.session_state.matching["score"] > 2*st.session_state.seuil/3),
+                                (st.session_state.matching["score"] < 2*st.session_state.seuil/3) & (st.session_state.matching["score"] > st.session_state.seuil/3),
+                                (st.session_state.matching["score"] < st.session_state.seuil/3) & (st.session_state.matching["score"] >= 0)]
+    st.session_state.groups = [set(st.session_state.matching.loc[st.session_state.bools[i],"Libelle GEN"].unique()) for i in range(4)]
+
+    for i in range(1, len( st.session_state.groups)):
+            st.session_state.groups[i] -= set.union(* st.session_state.groups[:i])
+    values = [len(group) for group in  st.session_state.groups]
+    st.sidebar.progress((111-values[0])/111,f"Reste à valider : {111-values[0]}/111")
+    colors = ["green","yellow","orange","red"]
+    names = ["Valided"]+[f"Confidence Threshold {i+1}" for i in range(3)]
+    desc = [ f"Items that have been mapped, either manually or automatically",
+            f"Items with a suggested mapping above {2*st.session_state.seuil//0.3/10}%",
+            f"Items with a suggested mapping above {st.session_state.seuil//0.3/10}%",
+                f"Items with a suggested mapping above {0}%"]
+    for i in range(4):
+        colored_header(names[i],description=desc[i],color_name=f"{colors[i]}-70")
+        if st.button(f"Access ({values[i]})",use_container_width=True,key=f'button{i}'): st.session_state["confiance"] = i 
 
 
 def displayMatches():
-    with st.expander("Matches",expanded=True):
+    with st.expander("Occupations",expanded=True):
         colors = ["green","yellow","orange","red"]
         names = ["Valided",
                  "Automatic Validation",
                  "Manual Evaluation",
                  "Rejected"]
         colored_header(names[st.session_state.confiance],"",color_name=f"{colors[st.session_state.confiance]}-70")
-        df = st.session_state.matching[st.session_state.bools[st.session_state.confiance] ].sort_values(by='Libelle GEN', ascending=True).sort_values(by='score', ascending=False).drop_duplicates(subset="Libelle GEN")
-        for rank,row in df[:20].iterrows():
-            b,g,r,s = st.columns([1,5,5,1])
-            if b.button("Go To",key=f'goto{rank}',use_container_width=True) : st.session_state.currentSpot = [int(i) for i in st.session_state.selectSpot[row["Libelle GEN"]]]
+        df = st.session_state.matching[st.session_state.matching["Libelle GEN"].isin( st.session_state.groups[st.session_state.confiance]) ].sort_values(by='Libelle GEN', ascending=True).sort_values(by="score",ascending=False).drop_duplicates(subset="Libelle GEN")
+        for rank,row in df.iterrows():
+            b,g,s = st.columns([1,3,1])
+            if b.button("Go To",key=f'goto{rank}',use_container_width=True) : 
+                st.session_state.currentSpot = [int(i) for i in st.session_state.selectSpot[row["Libelle GEN"]]]
+                js = '''
+                        <script>
+                            var body = window.parent.document.querySelector(".main");
+                            console.log(body);
+                            body.scrollTop = 0;
+                        </script>
+                        '''
+                st.components.v1.html(js)
             g.info(row["Libelle GEN"])
-            r.info(row["Libelle ROME"])
-            s.success(f"{row['score']//0.1/10} %")
-        if len(df)>20:
-            g.info("...")
-            r.info("...")
-            s.success("...")
+            with s:
+                if st.session_state.confiance == 0:
+                    if row["V"] == "Oui":
+                        st.success("VM")
+                    else:
+                        st.warning("VA")
+                else:
+                    st.metric("Best Mapping",row["score"]//0.1/10)
+
 
 
 
@@ -176,9 +190,13 @@ def referentialMatching():
         with st.spinner("Loading Frameworks"):
             initialization()
     displaySidebar()
-    col1, col2 = st.columns([2,2])
-    displayMatching()
-    displayMatches()
+    col1, col2 = st.columns(2)
+    st.divider()
+    l,r = st.columns(2)
+    with l:
+        displayMatching()
+    with r:
+        displayMatches()
     with col1:
         st.header("GEN Framework",divider="red")
         displayGraphG()
