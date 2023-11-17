@@ -9,58 +9,89 @@ import pandas as pd
 def displayGraphG():
     d,m,p = st.columns(3)
     description = st.container()
-
-    d.selectbox("Domaine",st.session_state.GEN.keys(),index=2,format_func=lambda x : st.session_state.GEN[x]["prefLabel"][0]["@value"],key="domain")
-    m.selectbox("Métier",st.session_state.GEN[st.session_state.domain]["children"],index=3,format_func=lambda x : x["prefLabel"][0]["@value"],key="job")
-    p.selectbox("Poste",st.session_state.job["children"],index=1,format_func=lambda x : x["prefLabel"][0]["@value"],key="occupation")
+    indices =list(st.session_state.currentSpot)
+    d.selectbox("Domaine",st.session_state.GEN.keys(),index=indices[0],format_func=lambda x : st.session_state.GEN[x]["prefLabel"][0]["@value"],key="domain")
+    m.selectbox("Métier",st.session_state.GEN[st.session_state.domain]["children"],index=min(indices[1],len(st.session_state.GEN[st.session_state.domain]["children"])-1),format_func=lambda x : x["prefLabel"][0]["@value"],key="job")
+    p.selectbox("Poste",st.session_state.job["children"],index=min(indices[2],len(st.session_state.job["children"])),format_func=lambda x : x["prefLabel"][0]["@value"],key="occupation")
 
     with description:
         occupation = st.session_state.occupation["prefLabel"][0]["@value"]
         colored_header(occupation,"",color_name="blue-30")
         st.info(f'The "{occupation}" is a- Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam molestie gravida turpis sit amet pellentesque. Aliquam suscipit posuere egestas. Quisque ac sapien eros. Sed gravida dictum dui ut condimentum. Integer accumsan turpis ut nulla iaculis pulvinar. Donec efficitur, odio quis dignissim consequat, urna magna mattis tellus, vel rutrum ipsum sem ac odio. Donec diam nibh, placerat ut risus a, lobortis blandit risus. Vestibulum ac mattis enim, sed sollicitudin justo. Duis eget pretium libero. Phasellus facilisis velit vel odio molestie, ut interdum nisi facilisis.')
 
+def displayName(x):
+    if x != "No filter":
+        return x + " - " + st.session_state.ROMEnames[x]
+    return x
+
 def displayGraphD():
+    css='''
+    <style>
+        [class="st-emotion-cache-keje6w e1f1d6gn1"] {
+            overflow-y: scroll;
+            overflow-x: hidden;
+            max-height: 50rem;
+        }
+    </style>
+    '''
+
+    st.markdown(css,unsafe_allow_html=True)
     df = st.session_state.matching.loc[st.session_state.matching["Libelle GEN"] == st.session_state.occupation["prefLabel"][0]["@value"],["V","Code ROME","Libelle ROME","score"]].sort_values(by='score', ascending=False)
     if len(df) == 0:
         st.warning("No proposed match for this particular occupation")
     else:
-            
-        filter = st.multiselect("Job Card Filter",df["Code ROME"].unique().tolist())
-        if len(filter)>0:
-            df = df[df["Code ROME"].isin(filter)]
+        filter = st.selectbox("Domain Filter",["No filter"] + list("ABCDEFGHIJKLMN"),format_func=lambda x :displayName(x),key= "filter 1")
 
-        for rank,row in df.iterrows():
-            
-            if row["V"] == "Oui": 
-                st.subheader(f'{row["score"]} % | {row["Code ROME"]} - {row["Libelle ROME"]}',divider="green")
-                with st.expander("Description"):
-                    st.info(st.session_state.defs[row["Libelle ROME"]])
+        if filter != "No filter":
+            names = [name for name in st.session_state.ROMEnames.keys() if (name.startswith(filter) and len(name)==3)]
+            filter2 = st.selectbox("Job Card Filter",["No filter"]+ names,format_func=lambda x :displayName(x),key= "filter 2")
 
-                if st.button("Unmatch",use_container_width=True,key=f"{rank}submit"): 
-                    st.session_state.matching.loc[rank,"V"] = "Non"
-                    st.rerun()
+            if len(filter2)==3:
+                names2 = [name for name in st.session_state.ROMEnames.keys() if (name.startswith(filter2) and len(name)==5)]
+                filter3 = st.selectbox("Job Filter",["No filter"]+ names2,format_func=lambda x :displayName(x),key= "filter 3")
+                filter = filter2
                 
-            elif row["V"] == "Non" :  
-                st.subheader(f'{row["score"]} % | {row["Code ROME"]} - {row["Libelle ROME"]}',divider="red")
-                with st.expander("Description"):
-                    st.info(st.session_state.defs[row["Libelle ROME"]])
+                if len(filter3) == 5:
+                    filter = filter3
+        
 
-                if st.button("Match",use_container_width=True,key=f"{rank}submit"): 
-                    st.session_state.matching.loc[rank,"V"] = "Oui"
-                    st.rerun()
-            
-            else:
-                st.subheader(f'{row["score"]//0.1/10} % | {row["Code ROME"]} - {row["Libelle ROME"]}',divider="orange")
-                with st.expander("Description"):
-                    st.info(st.session_state.defs[row["Libelle ROME"]])
+        if filter != "No filter":
+            df = df[df["Code ROME"].str.startswith(filter)]
+        if len(df) == 0:
+            st.warning("No matches for selected filters")
+        with st.container():
+            for rank,row in df.iterrows():
+                
+                if row["V"] == "Oui": 
+                    st.subheader(f'{row["score"]//0.1/10} % | {row["Code ROME"]} - {row["Libelle ROME"]}',divider="green")
+                    with st.expander("Description"):
+                        st.info(st.session_state.defs[row["Libelle ROME"]])
 
-                l,r = st.columns(2)
-                if l.button("Unmatch",use_container_width=True,key=f"{rank}rsubmit"): 
-                    st.session_state.matching.loc[rank,"V"] = "Non"
-                    st.rerun()
-                if r.button("Match",use_container_width=True,key=f"{rank}lsubmit"): 
-                    st.session_state.matching.loc[rank,"V"] = "Oui"
-                    st.rerun()
+                    if st.button("Unmatch",use_container_width=True,key=f"{rank}submit"): 
+                        st.session_state.matching.loc[rank,"V"] = "Non"
+                        st.rerun()
+                    
+                elif row["V"] == "Non" :  
+                    st.subheader(f'{row["score"]//0.1/10} % | {row["Code ROME"]} - {row["Libelle ROME"]}',divider="red")
+                    with st.expander("Description"):
+                        st.info(st.session_state.defs[row["Libelle ROME"]])
+
+                    if st.button("Match",use_container_width=True,key=f"{rank}submit"): 
+                        st.session_state.matching.loc[rank,"V"] = "Oui"
+                        st.rerun()
+                
+                else:
+                    st.subheader(f'{row["score"]//0.1/10} % | {row["Code ROME"]} - {row["Libelle ROME"]}',divider="orange")
+                    with st.expander("Description"):
+                        st.info(st.session_state.defs[row["Libelle ROME"]])
+                    l,r = st.columns(2)
+                    
+                    if l.button("Match",use_container_width=True,key=f"{rank}lsubmit"): 
+                        st.session_state.matching.loc[rank,"V"] = "Oui"
+                        st.rerun()
+                    if r.button("Unmatch",use_container_width=True,key=f"{rank}rsubmit"): 
+                        st.session_state.matching.loc[rank,"V"] = "Non"
+                        st.rerun()
 
             
 
@@ -88,21 +119,18 @@ def displaySidebar():
 def displayMatching():
     with st.form("Matching"):
         st.header("Progression",divider="red")
-        st.session_state.bools = [ st.session_state.matching["score"] == 100,
-                 (st.session_state.matching["score"] < 100) & (st.session_state.matching["score"] > st.session_state.seuil),
-                 (st.session_state.matching["score"] > 0) & (st.session_state.matching["score"] < st.session_state.seuil),
-                 st.session_state.matching["score"] == 0]
-        values = [bool.sum() for bool in st.session_state.bools]
+        st.session_state.bools = [ (st.session_state.matching["score"] < 100) & (st.session_state.matching["score"] > 75),
+                                    (st.session_state.matching["score"] < 75) & (st.session_state.matching["score"] > 50),
+                                    (st.session_state.matching["score"] < 50) & (st.session_state.matching["score"] > 25),
+                                    (st.session_state.matching["score"] < 25) & (st.session_state.matching["score"] > 0)]
+        values = [len(st.session_state.matching.loc[bool,"Libelle GEN"].unique()) for bool in st.session_state.bools]
         levels = st.columns(4)
         colors = ["green","yellow","orange","red"]
-        names = ["Valided",
-                 "Automatic Validation",
-                 "Automatic Rejection",
-                 "Rejected"]
-        desc = ["All validated Mappings",
-                f"Mappings with a score above {st.session_state.seuil}%",
-                f"Mappings with a score below {st.session_state.seuil}%",
-                "All rejected Mappings"]
+        names = [f"Confidence Threshold {i+1}" for i in range(4)]
+        desc = [ f"Mappings with a score above {75}%",
+                f"Mappings with a score above {50}%",
+                f"Mappings with a score below {25}%",
+                 f"Mappings with a score above {0}%"]
         for i,level in enumerate(levels):
             with level:
                 colored_header(names[i],description=desc[i],color_name=f"{colors[i]}-70")
@@ -117,9 +145,10 @@ def displayMatches():
                  "Manual Evaluation",
                  "Rejected"]
         colored_header(names[st.session_state.confiance],"",color_name=f"{colors[st.session_state.confiance]}-70")
-        df = st.session_state.matching[st.session_state.bools[st.session_state.confiance] ].sort_values(by='Libelle GEN', ascending=True).sort_values(by='score', ascending=False)
+        df = st.session_state.matching[st.session_state.bools[st.session_state.confiance] ].sort_values(by='Libelle GEN', ascending=True).sort_values(by='score', ascending=False).drop_duplicates(subset="Libelle GEN")
         for rank,row in df[:20].iterrows():
-            g,r,s = st.columns([5,5,1])
+            b,g,r,s = st.columns([1,5,5,1])
+            if b.button("Go To",key=f'goto{rank}',use_container_width=True) : st.session_state.currentSpot = [int(i) for i in st.session_state.selectSpot[row["Libelle GEN"]]]
             g.info(row["Libelle GEN"])
             r.info(row["Libelle ROME"])
             s.success(f"{row['score']//0.1/10} %")
@@ -128,30 +157,34 @@ def displayMatches():
             r.info("...")
             s.success("...")
 
+
+
 def initialization():
     st.session_state.GEN = json.load(open("app/data/GEN/transformed_referentielGEN.json","rb"))
     st.session_state.matching = pd.read_csv("app/data/GEN/GEN_ROME.csv")
     st.session_state.defs = json.load(open("app/data/ROME/descriptionsROME.json","r"))
+    st.session_state.selectSpot = json.load(open("app/data/GEN/selectSpot.json"))
+    st.session_state.ROMEnames = json.load(open("app/data/ROME/ROME_names.json")) 
     st.session_state["confiance"] = 0
+    st.session_state.currentSpot = [1,1,1]
     st.session_state.rules = []
 
 def referentialMatching():
+
+
     if st.sidebar.button("Reset",use_container_width=True) or "GEN" not in st.session_state:
         with st.spinner("Loading Frameworks"):
             initialization()
-    tabs = st.tabs(["Matching","Exploration"])
     displaySidebar()
-    with tabs[0]:
-        col1, col2 = st.columns([2,2])
-        with col1:
-            st.header("GEN Framework",divider="red")
-            displayGraphG()
-        with col2:
-            st.header("ROME Framework",divider="red")
-            displayGraphD()
-    with tabs[1]:
-        displayMatching()
-        displayMatches()
+    col1, col2 = st.columns([2,2])
+    displayMatching()
+    displayMatches()
+    with col1:
+        st.header("GEN Framework",divider="red")
+        displayGraphG()
+    with col2:
+        st.header("ROME Framework",divider="red")
+        displayGraphD()
 
 if __name__ == "__main__":
     st.set_page_config(page_title="matching tool",layout="wide")
