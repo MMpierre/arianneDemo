@@ -27,7 +27,7 @@ def displayName(x):
 def displayGraphD():
     css='''
     <style>
-        [class="st-emotion-cache-keje6w e1f1d6gn1"] {
+        [class="st-emotion-cache-keje6w e1f1d6gn2"] {
             overflow-y: scroll;
             overflow-x: hidden;
             max-height: 50rem;
