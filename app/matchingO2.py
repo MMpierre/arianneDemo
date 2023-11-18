@@ -42,7 +42,7 @@ def initialize_session():
     st.cache_resource.clear()
     """Initialise ou réinitialise les variables de session."""
     keys = [ "submitted", "submitted2", "propertyForm", "mappingForm","download",
-        "experiences", "competencys", "choices", "rules","mapped"]
+        "experiences", "competencys", "choices", "skillblocks","profiles","rules","mapped"]
     for key in keys:
         st.session_state[key] = False if key in ["submitted", "download","submitted2", "propertyForm", "mappingForm"] else []
     getReferentiel()
@@ -108,7 +108,7 @@ def createObjects():
 def create_item_form():
     with st.form("Item type"):
         colored_header("Add a new item:", description="", color_name="red-50")
-        st.selectbox("Select your Object type", ["Experience", "Competency", "Choice"], key="selectedType")
+        st.selectbox("Select your Object type", ["Experience", "Competency", "Choice","Profile","Skill Block"], key="selectedType")
         object_count = len(st.session_state.competencys) + len(st.session_state.experiences) + len(st.session_state.choices)
         st.text_input("Name your Object", f"{st.session_state.edTechID} - Object {object_count}", help="Name your Object", key="objectName")
         if st.form_submit_button("Confirm", use_container_width=True) : st.session_state.submitted = True
@@ -119,7 +119,9 @@ def handle_item_submission():
         item_type_handlers = {
             "Experience": handle_experience_submission,
             "Competency": handle_competency_submission,
-            "Choice": handle_choice_submission
+            "Choice": handle_choice_submission,
+            "Profile": handle_profile_submission,
+            "Skill Block": handle_skillBlock_submission
         }
         selected_type_handler = item_type_handlers.get(st.session_state.selectedType, lambda: None)
         selected_type_handler()
@@ -152,6 +154,22 @@ def handle_competency_submission():
         r.error("First create an experience")
         st.form_submit_button("Confirm",disabled=True)
 
+def handle_skillBlock_submission():
+    l,r = st.columns(2)
+    l.info("Skill Type")
+    r.selectbox("objectFields",["Hard Skill","Soft Skill","Personality Trait","Mixed"],label_visibility="collapsed",key="selected")
+    l,r = st.columns(2)
+    l.info("Experience")
+    if len(st.session_state.experiences)>0:
+        r.selectbox("objectFields",st.session_state.experiences,format_func=lambda x : x[1],label_visibility="collapsed",key="selected2")
+        if st.form_submit_button("Confirm",use_container_width=True) : 
+            st.session_state.skillblocks.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.selected,st.session_state.selected2[1]))
+            st.session_state.submitted = False
+            st.rerun()
+    else:
+        r.error("First create an experience")
+        st.form_submit_button("Confirm",disabled=True)
+
 def handle_choice_submission():
     l,r = st.columns(2)
     l.info("Polarity")
@@ -168,12 +186,30 @@ def handle_choice_submission():
         r.error("First create an experience")
         st.form_submit_button("Confirm",disabled=True)
 
+def handle_profile_submission():
+    l,r = st.columns(2)
+    l.info("property 1")
+    r.selectbox("objectFields",["Like","Level"],label_visibility="collapsed",key="selected")
+    l,r = st.columns(2)
+    l.info("property 2")
+    if len(st.session_state.experiences)>0:
+        r.selectbox("objectFields",st.session_state.experiences,format_func=lambda x : x[1],label_visibility="collapsed",key="selected2")
+        if st.form_submit_button("Confirm",use_container_width=True) : 
+            st.session_state.profiles.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.selected,st.session_state.selected2[1]))
+            st.session_state.submitted = False
+            st.rerun()
+    else:
+        r.error("First create an experience")
+        st.form_submit_button("Confirm",disabled=True)
+
            
 def display_existing_items():
     item_types = {
         "Experience": st.session_state.experiences,
         "Competency": st.session_state.competencys,
-        "Choice": st.session_state.choices
+        "Choice": st.session_state.choices,
+        "Skill Block": st.session_state.skillblocks,
+        "Profile": st.session_state.profiles
     }
     if len(item_types["Experience"])>0:
         cols = st.columns([2,2,4,1])
