@@ -12,7 +12,7 @@ def displayGraphG():
     indices =list(st.session_state.currentSpot)
     d.selectbox("Domaine",st.session_state.GEN.keys(),index=indices[0],format_func=lambda x : st.session_state.GEN[x]["prefLabel"][0]["@value"],key="domain")
     m.selectbox("Métier",st.session_state.GEN[st.session_state.domain]["children"],index=min(indices[1],len(st.session_state.GEN[st.session_state.domain]["children"])-1),format_func=lambda x : x["prefLabel"][0]["@value"],key="job")
-    p.selectbox("Poste",st.session_state.job["children"],index=min(indices[2],len(st.session_state.job["children"])),format_func=lambda x : x["prefLabel"][0]["@value"],key="occupation")
+    p.selectbox("Poste",st.session_state.job["children"],index=min(indices[2],len(st.session_state.job["children"])-1),format_func=lambda x : x["prefLabel"][0]["@value"],key="occupation")
 
     with description:
         occupation = st.session_state.occupation["prefLabel"][0]["@value"]
@@ -37,6 +37,9 @@ def displayGraphD():
 
     st.markdown(css,unsafe_allow_html=True)
     df = st.session_state.matching.loc[st.session_state.matching["Libelle GEN"] == st.session_state.occupation["prefLabel"][0]["@value"],["V","Code ROME","Libelle ROME","score"]].sort_values(by='score', ascending=False)
+    df['column_name'] = pd.Categorical(df['V'], categories=['Oui', 'Na', 'Non'], ordered=True)
+    df= df.sort_values('column_name')
+
     if len(df) == 0:
         st.warning("No proposed match for this particular occupation")
     else:
@@ -142,7 +145,7 @@ def displayMatching():
 def displayMatches():
     with st.expander("Occupations",expanded=True):
         colors = ["green","yellow","orange","red"]
-        names = ["Valided",
+        names = ["Validated",
                  "Automatic Validation",
                  "Manual Evaluation",
                  "Rejected"]

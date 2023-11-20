@@ -187,20 +187,12 @@ def handle_choice_submission():
         st.form_submit_button("Confirm",disabled=True)
 
 def handle_profile_submission():
-    l,r = st.columns(2)
-    l.info("property 1")
-    r.selectbox("objectFields",["Like","Level"],label_visibility="collapsed",key="selected")
-    l,r = st.columns(2)
-    l.info("property 2")
-    if len(st.session_state.experiences)>0:
-        r.selectbox("objectFields",st.session_state.experiences,format_func=lambda x : x[1],label_visibility="collapsed",key="selected2")
-        if st.form_submit_button("Confirm",use_container_width=True) : 
-            st.session_state.profiles.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.selected,st.session_state.selected2[1]))
-            st.session_state.submitted = False
-            st.rerun()
-    else:
-        r.error("First create an experience")
-        st.form_submit_button("Confirm",disabled=True)
+    st.info("There are no mandatory properties for a profile, just press 'Confirm'")
+    if st.form_submit_button("Confirm",use_container_width=True) : 
+        st.session_state.profiles.append((st.session_state.selectedType,st.session_state.objectName,"No property","No property"))
+        st.session_state.submitted = False
+        st.rerun()
+
 
            
 def display_existing_items():
