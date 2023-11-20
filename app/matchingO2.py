@@ -226,7 +226,7 @@ def display_item(item_type, item, index):
 
 def matchingTool():
     colored_header("Mapping",description="Map all your fields to their relevant object and property",color_name="red-70")
-    if len(st.session_state.experiences)>0:
+    if len(st.session_state.experiences)+len(st.session_state.profiles)>0:
         createPropertyForm()           
         if st.button("Confirm mappings",use_container_width=True):
             createRules()
@@ -257,10 +257,11 @@ def createMatchingForm(field):
 
 def createRules():
     for field in st.session_state.fieldList:
-        if st.session_state[f"object{field}"][1] != "No Mapping":
-            rule = f"'{field}' is associated with the property '{st.session_state[f'property4{field}']}' of the object '{st.session_state[f'object{field}'][1]}'"
-            st.session_state.rules.append(rule)
-            st.session_state.mapped.append(field)
+        if field not in st.session_state.mapped:
+            if st.session_state[f"object{field}"][1] != "No Mapping":
+                rule = f"'{field}' is associated with the property '{st.session_state[f'property4{field}']}' of the object '{st.session_state[f'object{field}'][1]}'"
+                st.session_state.rules.append(rule)
+                st.session_state.mapped.append(field)
     st.rerun()
 
 
