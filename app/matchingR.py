@@ -127,7 +127,7 @@ def displayMatching():
     for i in range(1, len( st.session_state.groups)):
             st.session_state.groups[i] -= set.union(* st.session_state.groups[:i])
     values = [len(group) for group in  st.session_state.groups]
-    st.sidebar.progress((111-values[0])/111,f"Reste à valider : {111-values[0]}/111")
+    st.sidebar.progress((111-values[0])/111,f"Left to be validated : {111-values[0]}/111")
     colors = ["green","yellow","orange","red"]
     names = ["Valided"]+[f"Confidence Threshold {i+1}" for i in range(3)]
     desc = [ f"Items that have been mapped, either manually or automatically",
