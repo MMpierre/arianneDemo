@@ -90,7 +90,7 @@ def display_schema():
     """Affiche le schéma de l'ontologie."""
     with st.expander("Schéma", expanded=False):
         colored_header("ARIANE pivot ontology", "", color_name="red-70")
-        st.image("app/ressources/ontologyVisualization.png", use_column_width=True)
+        st.image("app/ressources/ontologyVisualization2.png", use_column_width=True)
 
 # Creation d'objets
 

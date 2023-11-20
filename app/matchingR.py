@@ -67,7 +67,7 @@ def displayGraphD():
                     description = "No description available"
                 
                 if row["V"] == "Oui": 
-                    st.subheader(f'{row["score"]//0.1/10} % | {row["Code ROME"]} - {row["Libelle ROME"]}',divider="green")
+                    st.subheader(f'{row["score"]} % | {row["Code ROME"]} - {row["Libelle ROME"]}',divider="green")
                     with st.expander("Description"):
                         st.info(description)
 
@@ -76,7 +76,7 @@ def displayGraphD():
                         st.rerun()
                     
                 elif row["V"] == "Non" :  
-                    st.subheader(f'{row["score"]//0.1/10} % | {row["Code ROME"]} - {row["Libelle ROME"]}',divider="red")
+                    st.subheader(f'{row["score"]} % | {row["Code ROME"]} - {row["Libelle ROME"]}',divider="red")
                     with st.expander("Description"):
                         st.info(description)
 
@@ -85,7 +85,7 @@ def displayGraphD():
                         st.rerun()
                 
                 else:
-                    st.subheader(f'{row["score"]//0.1/10} % | {row["Code ROME"]} - {row["Libelle ROME"]}',divider="orange")
+                    st.subheader(f'{row["score"]} % | {row["Code ROME"]} - {row["Libelle ROME"]}',divider="orange")
                     with st.expander("Description"):
                         st.info(description)
                     l,r = st.columns(2)
@@ -118,10 +118,10 @@ def displaySidebar():
 
 def displayMatching():
     st.header("Progression",divider="red")
-    st.session_state.bools = [ (st.session_state.matching["score"] <= 100) & (st.session_state.matching["score"] > st.session_state.seuil),
-                                (st.session_state.matching["score"] < st.session_state.seuil) & (st.session_state.matching["score"] > 2*st.session_state.seuil/3),
-                                (st.session_state.matching["score"] < 2*st.session_state.seuil/3) & (st.session_state.matching["score"] > st.session_state.seuil/3),
-                                (st.session_state.matching["score"] < st.session_state.seuil/3) & (st.session_state.matching["score"] >= 0)]
+    st.session_state.bools = [ (st.session_state.matching["V"] == "Oui") | (st.session_state.matching["score"] > st.session_state.seuil),
+                                (st.session_state.matching["score"] > 2*st.session_state.seuil/3),
+                                (st.session_state.matching["score"] > st.session_state.seuil/3),
+                                (st.session_state.matching["score"] >= 0)]
     st.session_state.groups = [set(st.session_state.matching.loc[st.session_state.bools[i],"Libelle GEN"].unique()) for i in range(4)]
 
     for i in range(1, len( st.session_state.groups)):
@@ -168,7 +168,7 @@ def displayMatches():
                     else:
                         st.warning("VA")
                 else:
-                    st.metric("Best Mapping",row["score"]//0.1/10)
+                    st.metric("Best Mapping",row["score"])
 
 
 
