@@ -248,7 +248,7 @@ def createPropertyForm():
 def createMatchingForm(field):
     f,o,p = st.columns(3)
     f.info(field)
-    o.selectbox("object",[[0,"No Mapping"]] + st.session_state.experiences + st.session_state.competencys + st.session_state.choices,label_visibility='collapsed', format_func=lambda x:x[1],key=f"object{field}")
+    o.selectbox("object",[[0,"No Mapping"]] + st.session_state.experiences + st.session_state.competencys + st.session_state.choices + st.session_state.skillblocks + st.session_state.profiles,label_visibility='collapsed', format_func=lambda x:x[1],key=f"object{field}")
     if st.session_state[f"object{field}"][1] != "No Mapping":
         properties = st.session_state.ontology[st.session_state[f"object{field}"][0]]["Properties"]
         p.selectbox("Propriété",properties,key=f"property4{field}",label_visibility="collapsed")
