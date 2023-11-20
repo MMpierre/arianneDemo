@@ -11,7 +11,7 @@ def getReferentiel():
 def getGaming():
     initialize_session()
     st.session_state["edTechID"] = "gamingTest"
-    st.session_state.fieldList = ["Experience Name",  "Date", "Soft Skills", "Associated Soft Skill Block", "User ID", "Results"]
+    st.session_state.fieldList = ["Experience Name",  "Date", "Associated Soft Skill Block", "User ID", "Results"]
     return None
 
 def getJobsong():
