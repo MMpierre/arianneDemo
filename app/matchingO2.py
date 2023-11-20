@@ -109,7 +109,7 @@ def create_item_form():
     with st.form("Item type"):
         colored_header("Add a new item:", description="", color_name="red-50")
         st.selectbox("Select your Object type", ["Experience", "Competency", "Choice","Profile","Skill Block"], key="selectedType")
-        object_count = len(st.session_state.competencys) + len(st.session_state.experiences) + len(st.session_state.choices)
+        object_count = len(st.session_state.competencys) + len(st.session_state.experiences) + len(st.session_state.choices) + len(st.session_state.skillblocks) + len(st.session_state.profiles)
         st.text_input("Name your Object", f"{st.session_state.edTechID} - Object {object_count}", help="Name your Object", key="objectName")
         if st.form_submit_button("Confirm", use_container_width=True) : st.session_state.submitted = True
 

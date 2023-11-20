@@ -5,7 +5,13 @@
             "Objects": ["learnedIn", "belongsTo"]
         },
         "Choice": {
-            "Properties": ["ID", "polarityValue"],
+            "Properties": ["id", "polarityValue"],
+            "Objects": ["profile"]
+        },"Profile": {
+            "Properties": ["id", "name","email","adress"],
+            "Objects": ["profile"]
+        },"Skill Block": {
+            "Properties": ["id", "label", "Description", "compType", "skillLevel"],
             "Objects": ["profile"]
         },
         "Experience": {
