@@ -132,7 +132,7 @@ def displayMatching():
     values = [len(group) for group in  st.session_state.groups]
     st.sidebar.progress((111-values[0])/111,f"Left to be validated : {111-values[0]}/111")
     colors = ["green","yellow","orange","red"]
-    names = ["Valided"]+[f"Confidence Threshold {i+1}" for i in range(3)]
+    names = ["Validated"]+[f"Confidence Threshold {i+1}" for i in range(3)]
     desc = [ f"Items that have been mapped, either manually or automatically",
             f"Items with a suggested mapping above {2*st.session_state.seuil//0.3/10}%",
             f"Items with a suggested mapping above {st.session_state.seuil//0.3/10}%",
