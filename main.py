@@ -17,7 +17,7 @@ def main():
     # Direct to the appropriate page
     if st.session_state.selector == "Interface Ontologie":
         ontologyMatching2()
-    if st.session_state.selector == "Skill Mapping":
+    if st.session_state.selector == "Training Enhancement":
         skillExtraction()
     if st.session_state.selector== "Interface Référentiel":
         referentialMatching()
