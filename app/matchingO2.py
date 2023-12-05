@@ -56,7 +56,7 @@ def displaySidebar():
         st.header("Use Cases", divider="red")
         create_sidebar_buttons()
 
-        colored_header("EdTech ID", description="", color_name="red-70")
+        colored_header("Data Provider", description="", color_name="red-70")
         st.info(st.session_state.edTechID)
 
         colored_header("EdTech File", description="", color_name="red-70")

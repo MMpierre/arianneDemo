@@ -108,7 +108,7 @@ def displaySidebar():
     with st.sidebar:
         st.header("Use Cases",divider="red")
         st.button("GEN Framework",use_container_width=True)
-        st.header("EdTech ID",divider="red")
+        st.header("Data Provider",divider="red")
         st.info("GEN")
         st.header("Targeted Framework",divider="red")
         l,r = st.columns(2)

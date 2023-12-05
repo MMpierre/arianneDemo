@@ -29,10 +29,12 @@ def getSkills(skillType):
     
 def displayRome():
     st.header("Rome Skills",divider="red")
-    skilltypes = ["Hard Skills","Soft Skills"]
-    for j,(skilltype,tab) in enumerate(zip(skilltypes,st.tabs(["Hard Skills","Soft Skills"]))):
-
-        default = [skill["prefLabel"][0]["value"] for skill in getSkills(skilltype)]
+    skilltypes = ["Hard Skills","Soft Skills","Pro Skills"]
+    for j,(skilltype,tab) in enumerate(zip(skilltypes,st.tabs(skilltypes))):
+        if skilltype == "Pro Skills":
+            default = [skill for skill,desc in st.session_state["Pro Skills"].items()]
+        else:
+            default = [skill["prefLabel"][0]["value"] for skill in getSkills(skilltype)]
         score = [random.randint(1,99) for skill in default]
         with tab:
             for i,(score,skill) in enumerate(sorted(zip(score, default), key=lambda x: x[0],reverse=True)):
@@ -147,7 +149,10 @@ def initialize():
     st.session_state["jobSkills"] = json.load(open("app/data/jsons/jobSkills.json","r"))
 
     st.session_state["RNCP"] = json.load(open("app/data/RNCP/RNCPblocks.json"))
+
+    st.session_state["Pro Skills"] = json.load(open("app/data/ROME/allProfesionnalBehaviors.json","r"))
     st.session_state.css = update_multiselect_color()
+
     st.session_state['current_index'] = 0
 
 
