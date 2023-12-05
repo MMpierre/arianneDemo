@@ -1,6 +1,6 @@
 {
     "Consultant SEO": {
-        "Savoirs": [
+        "Soft Skills": [
             "rome:term/knowledge/103025",
             "rome:term/knowledge/102216",
             "rome:term/knowledge/103028",
@@ -18,7 +18,7 @@
             "rome:term/knowledge/117224",
             "rome:term/knowledge/101315"
         ],
-        "Savoir-faire": [
+        "Hard Skills": [
             "rome:term/skill/123393",
             "rome:term/skill/121262",
             "rome:term/skill/120513",
@@ -40,7 +40,7 @@
         ]
     },
     "Concepteur designer UI": {
-        "Savoirs": [
+        "Soft Skills": [
             "rome:term/knowledge/123139",
             "rome:term/knowledge/100665",
             "rome:term/knowledge/100820",
@@ -109,7 +109,7 @@
             "rome:term/knowledge/118334",
             "rome:term/knowledge/101065"
         ],
-        "Savoir-faire": [
+        "Hard Skills": [
             "rome:term/skill/123725",
             "rome:term/skill/402209",
             "rome:term/skill/117658",
@@ -141,7 +141,7 @@
         ]
     },
     "Technicien d\u2019assistance en informatique": {
-        "Savoirs": [
+        "Soft Skills": [
             "rome:term/knowledge/123515",
             "rome:term/knowledge/106864",
             "rome:term/knowledge/109770",
@@ -154,7 +154,7 @@
             "rome:term/knowledge/123729",
             "rome:term/knowledge/124908"
         ],
-        "Savoir-faire": [
+        "Hard Skills": [
             "rome:term/skill/113309",
             "rome:term/skill/121050",
             "rome:term/skill/122329",
@@ -180,7 +180,7 @@
         ]
     },
     "Concepteur d\u00e9veloppeur d'application": {
-        "Savoirs": [
+        "Soft Skills": [
             "rome:term/knowledge/126340",
             "rome:term/knowledge/109851",
             "rome:term/knowledge/101360",
@@ -247,7 +247,7 @@
             "rome:term/knowledge/109884",
             "rome:term/knowledge/119718"
         ],
-        "Savoir-faire": [
+        "Hard Skills": [
             "rome:term/skill/400199",
             "rome:term/skill/121028",
             "rome:term/skill/400320",
@@ -284,7 +284,7 @@
         ]
     },
     "D\u00e9veloppeur Web Full Stack": {
-        "Savoirs": [
+        "Soft Skills": [
             "rome:term/knowledge/126340",
             "rome:term/knowledge/109851",
             "rome:term/knowledge/101360",
@@ -351,7 +351,7 @@
             "rome:term/knowledge/109884",
             "rome:term/knowledge/119718"
         ],
-        "Savoir-faire": [
+        "Hard Skills": [
             "rome:term/skill/400199",
             "rome:term/skill/121028",
             "rome:term/skill/400320",
@@ -388,7 +388,7 @@
         ]
     },
     "Responsable d'espace de m\u00e9diation num\u00e9rique": {
-        "Savoirs": [
+        "Soft Skills": [
             "rome:term/knowledge/300723",
             "rome:term/knowledge/107774",
             "rome:term/knowledge/113781",
@@ -405,7 +405,7 @@
             "rome:term/knowledge/120617",
             "rome:term/knowledge/124904"
         ],
-        "Savoir-faire": [
+        "Hard Skills": [
             "rome:term/skill/300636",
             "rome:term/skill/103894",
             "rome:term/skill/103889",
@@ -421,7 +421,7 @@
         ]
     },
     "Commercial expert en num\u00e9rique - SDR": {
-        "Savoirs": [
+        "Soft Skills": [
             "rome:term/knowledge/121691",
             "rome:term/knowledge/121706",
             "rome:term/knowledge/100090",
@@ -433,7 +433,7 @@
             "rome:term/knowledge/118717",
             "rome:term/knowledge/118726"
         ],
-        "Savoir-faire": [
+        "Hard Skills": [
             "rome:term/skill/117243",
             "rome:term/skill/122709",
             "rome:term/skill/102318",
@@ -442,7 +442,7 @@
         ]
     },
     "D\u00e9veloppeur intelligence artificielle": {
-        "Savoirs": [
+        "Soft Skills": [
             "rome:term/knowledge/101400",
             "rome:term/knowledge/101675",
             "rome:term/knowledge/109530",
@@ -472,7 +472,7 @@
             "rome:term/knowledge/117685",
             "rome:term/knowledge/101315"
         ],
-        "Savoir-faire": [
+        "Hard Skills": [
             "rome:term/skill/121983",
             "rome:term/skill/117698",
             "rome:term/skill/120552",
@@ -491,7 +491,7 @@
         ]
     },
     "Titre Professionnel Administrateur d'Infrastructures S\u00e9curis\u00e9es": {
-        "Savoirs": [
+        "Soft Skills": [
             "rome:term/knowledge/123515",
             "rome:term/knowledge/118428",
             "rome:term/knowledge/118700",
@@ -527,7 +527,7 @@
             "rome:term/knowledge/119314",
             "rome:term/knowledge/118820"
         ],
-        "Savoir-faire": [
+        "Hard Skills": [
             "rome:term/skill/117708",
             "rome:term/skill/117346",
             "rome:term/skill/115246",

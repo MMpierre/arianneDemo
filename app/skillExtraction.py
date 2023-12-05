@@ -1,6 +1,6 @@
 import streamlit as st
 import json
-import xml.etree.ElementTree as ET
+import random
 import numpy as np
 
 def displayFormation():
@@ -29,28 +29,45 @@ def getSkills(skillType):
     
 def displayRome():
     st.header("Rome Skills",divider="red")
-    st.selectbox("Skill type",["Savoir-faire","Savoirs"],format_func=lambda x:x,key="skillType")  
-    with st.form("ROME"):  
-        default = getSkills(st.session_state.skillType)
-        st.multiselect(f"Selectionnez vos {st.session_state.skillType}",st.session_state[st.session_state.skillType],default=default,format_func=lambda x:x["prefLabel"][0]["value"])
-        st.form_submit_button("Confirmer",use_container_width=True)
+    skilltypes = ["Hard Skills","Soft Skills"]
+    for j,(skilltype,tab) in enumerate(zip(skilltypes,st.tabs(["Hard Skills","Soft Skills"]))):
+
+        default = [skill["prefLabel"][0]["value"] for skill in getSkills(skilltype)]
+        score = [random.randint(1,99) for skill in default]
+        with tab:
+            for i,(score,skill) in enumerate(sorted(zip(score, default), key=lambda x: x[0],reverse=True)):
+                with st.form(f"ROME_{i},{j}"):  
+                    s,t = st.columns([5,1])
+                    s.subheader(f"{skill}",divider="green")
+                    with s.expander("Description"):
+                        st.info("Description")
+                    t.metric("Score",f"{score} %",label_visibility="hidden")
+                    t.form_submit_button("Confirm",use_container_width=True)
+
 
 def displayRNCP():
-    with st.form("RNCP"):
         st.header("RNCP Skills",divider="red")
-        for i in range(3):
-            with st.expander(f"Suggestion #{i}",expanded=True):
+        default = random.choices(st.session_state["RNCP"],k=20)
+        score = [random.randint(1,99) for skill in default]
+        for i,(score,skillBlock) in enumerate(sorted(zip(score, default), key=lambda x: x[0],reverse=True)):
+            with st.form(f"RNCP {i}"):
                 s,t = st.columns([5,1])
-                s.subheader(f"Skill Label #{i}",divider="blue")
-                t.checkbox("valided",False,key = f"check2_{i}",label_visibility='collapsed')
-        st.form_submit_button("Confirm",use_container_width=True)
+                s.subheader(f'{skillBlock["prefLabel"][0]}'    ,divider="green")
+                with s.expander("Skills",expanded=False):
+                    if "competency" in skillBlock.keys() and len(skillBlock["competency"])>0:
+                        for skill in skillBlock["competency"]:
+                            st.info(skill["prefLabel"][0])
+                    else:
+                        st.info("No sub-skills for this block")
+                t.metric("Score",f"{score} %",label_visibility="hidden")
+                t.form_submit_button("Confirm",use_container_width=True)
 
 def displaySidebar():
 
     st.sidebar.header("Use Cases",divider="red")
     st.sidebar.button("GEN",use_container_width=True,disabled=True)
 
-    st.sidebar.header("Edtech ID",divider="red")
+    st.sidebar.header("Data Provider",divider="red")
     st.sidebar.info("GEN")
 
     st.sidebar.header("Catalogue",divider="red")
@@ -118,13 +135,18 @@ def update_multiselect_color():
 
 def initialize():
     st.session_state["formations"] = json.load(open("app/data/formationGEN/sample.json","r"))
-    st.session_state["Savoirs"] = [knowledge for knowledge in json.load(open("app/data/ROME/allKnowledges.json","r")) if len(knowledge["id"])==26]
+
+    st.session_state["Soft Skills"] = [knowledge for knowledge in json.load(open("app/data/ROME/allKnowledges.json","r")) if len(knowledge["id"])==26]
     for word in ["Brevet","Certificat","Habilitation","CACES","Permis","Attestation","Qualification"]:
-        st.session_state["Savoirs"] = [knowledge for knowledge in st.session_state["Savoirs"] if word not in knowledge["prefLabel"][0]["value"]]
+        st.session_state["Soft Skills"] = [knowledge for knowledge in st.session_state["Soft Skills"] if word not in knowledge["prefLabel"][0]["value"]]
+    st.session_state["Hard Skills"] = json.load(open("app/data/ROME/allSkills.json","r"))
+
     st.session_state["KLC"] = json.load(open("app/data/ROME/knowledgeCategories.json","r"))
     st.session_state["KHD"] = json.load(open("app/data/ROME/knowHowDomains.json","r"))
-    st.session_state["Savoir-faire"] = json.load(open("app/data/ROME/allSkills.json","r"))
+
     st.session_state["jobSkills"] = json.load(open("app/data/jsons/jobSkills.json","r"))
+
+    st.session_state["RNCP"] = json.load(open("app/data/RNCP/RNCPblocks.json"))
     st.session_state.css = update_multiselect_color()
     st.session_state['current_index'] = 0
 
@@ -133,14 +155,16 @@ def initialize():
 def skillExtraction():
     if "formations" not in st.session_state:
         initialize()
-    update_multiselect_style()
-    st.markdown(st.session_state.css, unsafe_allow_html=True)
+    # st.markdown(st.session_state.css, unsafe_allow_html=True)
     displaySidebar()
     displayFormation()
-    
-    displayRome()
+    rome,rncp = st.columns(2)
+    with rome:
+        displayRome()
+    with rncp:
+        displayRNCP()
 
 if __name__ == "__main__":
     st.set_page_config(layout='wide')
-    st.title("Skill Extraction Tool")
+    st.title("Training Enhancing")
     skillExtraction()
