@@ -12,12 +12,12 @@ def main():
         st.session_state.selector = ""
     if st.sidebar.button("Ontology Mapping",use_container_width=True) : st.session_state.selector = "Interface Ontologie" 
     if st.sidebar.button("Framework Mapping",use_container_width=True): st.session_state.selector = "Interface Référentiel"
-    if st.sidebar.button("Skill Mapping",use_container_width=True): st.session_state.selector= "Skill Mapping"
+    if st.sidebar.button("Training Enhancement",use_container_width=True): st.session_state.selector= "Skill Mapping"
 
     # Direct to the appropriate page
     if st.session_state.selector == "Interface Ontologie":
         ontologyMatching2()
-    if st.session_state.selector == "Training Enhancement":
+    if st.session_state.selector == "Skill Mapping":
         skillExtraction()
     if st.session_state.selector== "Interface Référentiel":
         referentialMatching()
