@@ -108,7 +108,9 @@ def createObjects():
 def create_item_form():
     with st.form("Item type"):
         colored_header("Add a new item:", description="", color_name="red-50")
-        st.selectbox("Select your Object type", ["Experience", "Competency", "Choice","Profile","Skill Block"], key="selectedType")
+        l,r = st.columns([3,1])
+        l.selectbox("Select your Object type and language", ["Experience", "Competency", "Choice","Profile","Skill Block"], key="selectedType")
+        r.selectbox("Select",["EN","DE","FR","ES","IT","RU","TR","UK","PL","RO"],key="language",label_visibility="hidden")
         object_count = len(st.session_state.competencys) + len(st.session_state.experiences) + len(st.session_state.choices) + len(st.session_state.skillblocks) + len(st.session_state.profiles)
         st.text_input("Name your Object", f"{st.session_state.edTechID} - Object {object_count}", help="Name your Object", key="objectName")
         if st.form_submit_button("Confirm", use_container_width=True) : st.session_state.submitted = True
@@ -134,7 +136,7 @@ def handle_experience_submission():
     l.info("Experience Status")
     r.selectbox("objectFields",["Past","Ongoing","Suggested"],label_visibility="collapsed",key="selected2")
     if st.form_submit_button("Confirm",use_container_width=True) : 
-        st.session_state.experiences.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.selected,st.session_state.selected2))
+        st.session_state.experiences.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.language,st.session_state.selected,st.session_state.selected2))
         st.session_state.submitted = False
         st.rerun()
 
@@ -147,7 +149,7 @@ def handle_competency_submission():
     if len(st.session_state.experiences)>0:
         r.selectbox("objectFields",st.session_state.experiences,format_func=lambda x : x[1],label_visibility="collapsed",key="selected2")
         if st.form_submit_button("Confirm",use_container_width=True) : 
-            st.session_state.competencys.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.selected,st.session_state.selected2[1]))
+            st.session_state.competencys.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.language,st.session_state.selected,st.session_state.selected2[1]))
             st.session_state.submitted = False
             st.rerun()
     else:
@@ -163,7 +165,7 @@ def handle_skillBlock_submission():
     if len(st.session_state.experiences)>0:
         r.selectbox("objectFields",st.session_state.experiences,format_func=lambda x : x[1],label_visibility="collapsed",key="selected2")
         if st.form_submit_button("Confirm",use_container_width=True) : 
-            st.session_state.skillblocks.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.selected,st.session_state.selected2[1]))
+            st.session_state.skillblocks.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.language,st.session_state.selected,st.session_state.selected2[1]))
             st.session_state.submitted = False
             st.rerun()
     else:
@@ -179,7 +181,7 @@ def handle_choice_submission():
     if len(st.session_state.experiences)>0:
         r.selectbox("objectFields",st.session_state.experiences,format_func=lambda x : x[1],label_visibility="collapsed",key="selected2")
         if st.form_submit_button("Confirm",use_container_width=True) : 
-            st.session_state.choices.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.selected,st.session_state.selected2[1]))
+            st.session_state.choices.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.language,st.session_state.selected,st.session_state.selected2[1]))
             st.session_state.submitted = False
             st.rerun()
     else:
@@ -189,7 +191,7 @@ def handle_choice_submission():
 def handle_profile_submission():
     st.info("There are no mandatory properties for a profile, just press 'Confirm'")
     if st.form_submit_button("Confirm",use_container_width=True) : 
-        st.session_state.profiles.append((st.session_state.selectedType,st.session_state.objectName,"No property","No property"))
+        st.session_state.profiles.append((st.session_state.selectedType,st.session_state.objectName,st.session_state.language,"No property","No property"))
         st.session_state.submitted = False
         st.rerun()
 
@@ -204,7 +206,7 @@ def display_existing_items():
         "Profile": st.session_state.profiles
     }
     if len(item_types["Experience"])>0:
-        cols = st.columns([2,2,4,1])
+        cols = st.columns([1.5,2,4.5,1])
         names = ["Type","Name","Properties","X"]
         for i in range(4):
             cols[i].subheader(names[i],divider="red")
@@ -213,7 +215,7 @@ def display_existing_items():
             display_item(item_type, item, i)
 
 def display_item(item_type, item, index):
-    cols = st.columns([2, 2,2,2, 1])
+    cols = st.columns([1.5, 2,0.5,2,2, 1])
     cols[0].success(f"{item_type} n°{index}")
     for i,property in enumerate(item[1:]):
         cols[i+1].info(property)
@@ -297,4 +299,4 @@ def ontologyMatching2():
 if __name__ == "__main__":
     st.set_page_config(layout='wide')
     st.title("Outil de Matching d'Ontologie")
-    ontology_matching()
+    ontologyMatching2()
