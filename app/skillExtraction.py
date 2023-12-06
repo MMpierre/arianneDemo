@@ -29,10 +29,10 @@ def getSkills(skillType):
     
 def displayRome():
     st.header("Rome Skills",divider="red")
-    skilltypes = ["Hard Skills","Soft Skills","Pro Skills"]
+    skilltypes = ["Hard Skills","Knowledges","Soft Skills"]
     for j,(skilltype,tab) in enumerate(zip(skilltypes,st.tabs(skilltypes))):
-        if skilltype == "Pro Skills":
-            default = [skill for skill,desc in st.session_state["Pro Skills"].items()]
+        if skilltype == "Soft Skills":
+            default = [skill for skill,desc in st.session_state["Soft Skills"].items()]
         else:
             default = [skill["prefLabel"][0]["value"] for skill in getSkills(skilltype)]
         score = [random.randint(1,99) for skill in default]
@@ -138,9 +138,9 @@ def update_multiselect_color():
 def initialize():
     st.session_state["formations"] = json.load(open("app/data/formationGEN/sample.json","r"))
 
-    st.session_state["Soft Skills"] = [knowledge for knowledge in json.load(open("app/data/ROME/allKnowledges.json","r")) if len(knowledge["id"])==26]
+    st.session_state["Knowledges"] = [knowledge for knowledge in json.load(open("app/data/ROME/allKnowledges.json","r")) if len(knowledge["id"])==26]
     for word in ["Brevet","Certificat","Habilitation","CACES","Permis","Attestation","Qualification"]:
-        st.session_state["Soft Skills"] = [knowledge for knowledge in st.session_state["Soft Skills"] if word not in knowledge["prefLabel"][0]["value"]]
+        st.session_state["Knowledges"] = [knowledge for knowledge in st.session_state["Knowledges"] if word not in knowledge["prefLabel"][0]["value"]]
     st.session_state["Hard Skills"] = json.load(open("app/data/ROME/allSkills.json","r"))
 
     st.session_state["KLC"] = json.load(open("app/data/ROME/knowledgeCategories.json","r"))
@@ -150,7 +150,7 @@ def initialize():
 
     st.session_state["RNCP"] = json.load(open("app/data/RNCP/RNCPblocks.json"))
 
-    st.session_state["Pro Skills"] = json.load(open("app/data/ROME/allProfesionnalBehaviors.json","r"))
+    st.session_state["Soft Skills"] = json.load(open("app/data/ROME/allProfesionnalBehaviors.json","r"))
     st.session_state.css = update_multiselect_color()
 
     st.session_state['current_index'] = 0
@@ -163,7 +163,7 @@ def skillExtraction():
     # st.markdown(st.session_state.css, unsafe_allow_html=True)
     displaySidebar()
     displayFormation()
-    rome,rncp = st.columns(2)
+    rome,rncp = st.tabs(["ROME","RNCP"])
     with rome:
         displayRome()
     with rncp:

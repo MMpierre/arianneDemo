@@ -1,6 +1,6 @@
 {
     "Consultant SEO": {
-        "Soft Skills": [
+        "Knowledges": [
             "rome:term/knowledge/103025",
             "rome:term/knowledge/102216",
             "rome:term/knowledge/103028",
@@ -40,7 +40,7 @@
         ]
     },
     "Concepteur designer UI": {
-        "Soft Skills": [
+        "Knowledges": [
             "rome:term/knowledge/123139",
             "rome:term/knowledge/100665",
             "rome:term/knowledge/100820",
@@ -141,7 +141,7 @@
         ]
     },
     "Technicien d\u2019assistance en informatique": {
-        "Soft Skills": [
+        "Knowledges": [
             "rome:term/knowledge/123515",
             "rome:term/knowledge/106864",
             "rome:term/knowledge/109770",
@@ -180,7 +180,7 @@
         ]
     },
     "Concepteur d\u00e9veloppeur d'application": {
-        "Soft Skills": [
+        "Knowledges": [
             "rome:term/knowledge/126340",
             "rome:term/knowledge/109851",
             "rome:term/knowledge/101360",
@@ -284,7 +284,7 @@
         ]
     },
     "D\u00e9veloppeur Web Full Stack": {
-        "Soft Skills": [
+        "Knowledges": [
             "rome:term/knowledge/126340",
             "rome:term/knowledge/109851",
             "rome:term/knowledge/101360",
@@ -388,7 +388,7 @@
         ]
     },
     "Responsable d'espace de m\u00e9diation num\u00e9rique": {
-        "Soft Skills": [
+        "Knowledges": [
             "rome:term/knowledge/300723",
             "rome:term/knowledge/107774",
             "rome:term/knowledge/113781",
@@ -421,7 +421,7 @@
         ]
     },
     "Commercial expert en num\u00e9rique - SDR": {
-        "Soft Skills": [
+        "Knowledges": [
             "rome:term/knowledge/121691",
             "rome:term/knowledge/121706",
             "rome:term/knowledge/100090",
@@ -442,7 +442,7 @@
         ]
     },
     "D\u00e9veloppeur intelligence artificielle": {
-        "Soft Skills": [
+        "Knowledges": [
             "rome:term/knowledge/101400",
             "rome:term/knowledge/101675",
             "rome:term/knowledge/109530",
@@ -491,7 +491,7 @@
         ]
     },
     "Titre Professionnel Administrateur d'Infrastructures S\u00e9curis\u00e9es": {
-        "Soft Skills": [
+        "Knowledges": [
             "rome:term/knowledge/123515",
             "rome:term/knowledge/118428",
             "rome:term/knowledge/118700",
