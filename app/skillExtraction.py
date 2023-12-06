@@ -26,43 +26,94 @@ def displayFormation():
 def getSkills(skillType):
     liste = st.session_state["jobSkills"][st.session_state.selectedFormation["title"]][skillType]
     return [skill for id in liste for skill in st.session_state[skillType] if skill["id"] == id]
-    
+
+def getRomeSuggestions(title):
+    st.session_state["Suggested"][title] = {
+        "Soft Skills" : [(skill,random.randint(1,99)) for skill in st.session_state["Soft Skills"].keys()],
+        "Knowledges" : [(skill["prefLabel"][0]["value"],random.randint(1,99))  for skill in getSkills("Knowledges")],
+        "Hard Skills" : [(skill["prefLabel"][0]["value"],random.randint(1,99))  for skill in getSkills("Hard Skills")]
+    }
+
 def displayRome():
     st.header("Rome Skills",divider="red")
-    skilltypes = ["Hard Skills","Knowledges","Soft Skills"]
-    for j,(skilltype,tab) in enumerate(zip(skilltypes,st.tabs(skilltypes))):
-        if skilltype == "Soft Skills":
-            default = [skill for skill,desc in st.session_state["Soft Skills"].items()]
-        else:
-            default = [skill["prefLabel"][0]["value"] for skill in getSkills(skilltype)]
-        score = [random.randint(1,99) for skill in default]
-        with tab:
-            for i,(score,skill) in enumerate(sorted(zip(score, default), key=lambda x: x[0],reverse=True)):
-                with st.form(f"ROME_{i},{j}"):  
-                    s,t = st.columns([5,1])
-                    s.subheader(f"{skill}",divider="green")
-                    with s.expander("Description"):
-                        st.info("Description")
-                    t.metric("Score",f"{score} %",label_visibility="hidden")
-                    t.form_submit_button("Confirm",use_container_width=True)
+
+    skilltype=st.selectbox("Select Skill Type",["Hard Skills","Knowledges","Soft Skills"])
+
+    sugg,val = st.tabs(["Suggested","Validated"])
+
+    with sugg:
+        if st.session_state.selectedFormation["title"] not in st.session_state["Suggested"]:
+            getRomeSuggestions(st.session_state.selectedFormation["title"])
+        suggested = st.session_state["Suggested"][st.session_state.selectedFormation["title"]][skilltype]
+        for i,(skill,score) in enumerate(sorted(suggested, key=lambda x: x[1],reverse=True)):
+            with st.form(f"ROME_{i}"):  
+                st.subheader(f"{score}% - {skill}",divider="violet")
+                s,t = st.columns([5,1])
+                with s.expander("Description"):
+                    st.info("Description")
+                if t.form_submit_button("Confirm",use_container_width=True): 
+                    st.session_state["Suggested"][st.session_state.selectedFormation["title"]][skilltype].remove((skill,score))
+                    st.session_state["Validated"][st.session_state.selectedFormation["title"]][skilltype].append((skill,score))
+                    st.rerun()
+    with val:
+        validated = st.session_state["Validated"][st.session_state.selectedFormation["title"]][skilltype]
+        for i,(skill,score) in enumerate(validated):
+            with st.form(f"ROME_2{i}"):  
+                st.subheader(f"{skill}",divider="green")
+                s,t = st.columns([5,1])
+                with s.expander("Description"):
+                    st.info("Description")
+                # t.metric("Score",f"{score} %",label_visibility="hidden")
+                if t.form_submit_button("Cancel",use_container_width=True):
+                    st.session_state["Validated"][st.session_state.selectedFormation["title"]][skilltype].remove((skill,score))
+                    st.session_state["Suggested"][st.session_state.selectedFormation["title"]][skilltype].append((skill,score))
+                    st.rerun()
+
+def getRncpSuggestions(title):
+    st.session_state["SuggestedRNCP"][title] = [(skill,random.randint(1,99)) for skill in random.choices(st.session_state["RNCP"],k=20)]
 
 
 def displayRNCP():
-        st.header("RNCP Skills",divider="red")
-        default = random.choices(st.session_state["RNCP"],k=20)
-        score = [random.randint(1,99) for skill in default]
-        for i,(score,skillBlock) in enumerate(sorted(zip(score, default), key=lambda x: x[0],reverse=True)):
+    st.header("RNCP Skills",divider="red")
+    sugg,val = st.tabs(["Suggested","Validated"])
+
+    with sugg:
+        if st.session_state.selectedFormation["title"] not in st.session_state["SuggestedRNCP"]:
+            getRncpSuggestions(st.session_state.selectedFormation["title"])
+
+        suggested = st.session_state["SuggestedRNCP"][st.session_state.selectedFormation["title"]]
+
+        for i,(skillBlock,score) in enumerate(sorted(suggested, key=lambda x: x[1],reverse=True)):
             with st.form(f"RNCP {i}"):
+                st.subheader(f"{score}% - {skillBlock['prefLabel'][0]}",divider="blue")
                 s,t = st.columns([5,1])
-                s.subheader(f'{skillBlock["prefLabel"][0]}'    ,divider="green")
                 with s.expander("Skills",expanded=False):
                     if "competency" in skillBlock.keys() and len(skillBlock["competency"])>0:
                         for skill in skillBlock["competency"]:
                             st.info(skill["prefLabel"][0])
                     else:
                         st.info("No sub-skills for this block")
-                t.metric("Score",f"{score} %",label_visibility="hidden")
-                t.form_submit_button("Confirm",use_container_width=True)
+                if t.form_submit_button("Confirm",use_container_width=True):
+                    st.session_state["SuggestedRNCP"][st.session_state.selectedFormation["title"]].remove((skillBlock,score))
+                    st.session_state["ValidatedRNCP"][st.session_state.selectedFormation["title"]].append((skillBlock,score))
+                    st.rerun()                 
+    with val:
+        validated = st.session_state["ValidatedRNCP"][st.session_state.selectedFormation["title"]]
+        for i,(skillBlock,score) in enumerate(sorted(validated, key=lambda x: x[1],reverse=True)):
+            with st.form(f"RNCP 2{i}"):
+                st.subheader(f'{skillBlock["prefLabel"][0]}',divider="green")
+                s,t = st.columns([5,1])
+                with s.expander("Skills",expanded=False):
+                    if "competency" in skillBlock.keys() and len(skillBlock["competency"])>0:
+                        for skill in skillBlock["competency"]:
+                            st.info(skill["prefLabel"][0])
+                    else:
+                        st.info("No sub-skills for this block")
+                if t.form_submit_button("Confirm",use_container_width=True):
+                    st.session_state["ValidatedRNCP"][st.session_state.selectedFormation["title"]].remove((skillBlock,score))
+                    st.session_state["SuggestedRNCP"][st.session_state.selectedFormation["title"]].append((skillBlock,score))
+                    st.rerun()          
+
 
 def displaySidebar():
 
@@ -154,6 +205,17 @@ def initialize():
     st.session_state.css = update_multiselect_color()
 
     st.session_state['current_index'] = 0
+    
+    st.session_state["ValidatedRNCP"] = {formation["title"] : list() for formation in st.session_state["formations"]}
+    
+    st.session_state['Validated'] = {formation["title"] : {
+                                                            "Hard Skills" : [],
+                                                            "Knowledges" : [],
+                                                            "Soft Skills" : [],
+                                                        } for formation in st.session_state["formations"]}
+
+    st.session_state['Suggested'] = dict()
+    st.session_state['SuggestedRNCP'] = dict()
 
 
 
