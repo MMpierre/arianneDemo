@@ -109,7 +109,7 @@ def displayRNCP():
                             st.info(skill["prefLabel"][0])
                     else:
                         st.info("No sub-skills for this block")
-                if t.form_submit_button("Confirm",use_container_width=True):
+                if t.form_submit_button("Cancel",use_container_width=True):
                     st.session_state["ValidatedRNCP"][st.session_state.selectedFormation["title"]].remove((skillBlock,score))
                     st.session_state["SuggestedRNCP"][st.session_state.selectedFormation["title"]].append((skillBlock,score))
                     st.rerun()          
