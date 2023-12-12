@@ -58,7 +58,7 @@ def displayRome():
     with val:
         validated = st.session_state["Validated"][st.session_state.selectedFormation["title"]][skilltype]
         for i,(skill,score) in enumerate(validated):
-            with st.form(f"ROME_2{i}"):  
+            with st.form(f"ROME_2_{i}"):  
                 st.subheader(f"{skill}",divider="green")
                 s,t = st.columns([5,1])
                 with s.expander("Description"):
@@ -71,7 +71,6 @@ def displayRome():
 
 def getRncpSuggestions(title):
     st.session_state["SuggestedRNCP"][title] = [(skill,random.randint(1,99)) for skill in random.choices(st.session_state["RNCP"],k=20)]
-
 
 def displayRNCP():
     st.header("RNCP Skills",divider="red")
@@ -100,7 +99,7 @@ def displayRNCP():
     with val:
         validated = st.session_state["ValidatedRNCP"][st.session_state.selectedFormation["title"]]
         for i,(skillBlock,score) in enumerate(sorted(validated, key=lambda x: x[1],reverse=True)):
-            with st.form(f"RNCP 2{i}"):
+            with st.form(f"RNCP 2_{i}"):
                 st.subheader(f'{skillBlock["prefLabel"][0]}',divider="green")
                 s,t = st.columns([5,1])
                 with s.expander("Skills",expanded=False):
@@ -118,13 +117,14 @@ def displayRNCP():
 def displaySidebar():
 
     st.sidebar.header("Use Cases",divider="red")
-    st.sidebar.button("GEN",use_container_width=True,disabled=True)
+    st.sidebar.button("GEN",use_container_width=True,disabled=False)
 
     st.sidebar.header("Data Provider",divider="red")
     st.sidebar.info("GEN")
 
     st.sidebar.header("Catalogue",divider="red")
     st.sidebar.selectbox("Select your Item",st.session_state.formations,index=st.session_state['current_index'],format_func=lambda x:x["title"],key="selectedFormation")
+    st.sidebar.file_uploader("Coming next - upload your own",type="json",disabled=True)
     if st.session_state.selectedFormation != st.session_state['formations'][st.session_state['current_index']]:
         st.session_state['current_index'] = st.session_state['formations'].index(st.session_state.selectedFormation)
 
